@@ -9,10 +9,13 @@ std::ofstream outfile;
 
 static void gps_callback(const sensor_msgs::NavSatFix& gps_input)
 {
+
     double_t latitude = gps_input.latitude;
     double_t longitude = gps_input.longitude;
     double_t altitude = gps_input.altitude;
-    outfile << latitude <<"," << latitude <<"," << latitude << std::endl;
+    ros::Time time = gps_input.header.stamp;
+
+    outfile << latitude <<"," << longitude <<"," << altitude <<","<< time << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -22,7 +25,7 @@ int main(int argc, char **argv)
 
     ros::Subscriber sub_gps = nh.subscribe("gps", 10, gps_callback);
     outfile.open(FILE_NAME);
-    outfile << "latitude," << "latitude," << "latitude" << std::endl;
+    outfile << "latitude," << "longitude," << "altitude," << "time" << std::endl;
     ros::spin();
     outfile.close();
     return 0;
