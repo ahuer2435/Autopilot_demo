@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rtk_planning)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+ add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -134,6 +134,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(rtk_record_node src/rtk_record.cpp)
+ add_executable(rtk_replay_planner_node src/rtk_replay_planner.cpp )
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,6 +148,7 @@ include_directories(
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(rtk_record_node   ${catkin_LIBRARIES} )
+ target_link_libraries(rtk_replay_planner_node   ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
