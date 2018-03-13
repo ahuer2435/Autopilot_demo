@@ -40,12 +40,9 @@ void ReadTrajectoryFile(const std::string& filename) {
 
     stringstream ss(line);
     vector<string> str;
-    int i = 0;
 
     while(getline(ss,value,',')){
         str.push_back(value);
-        //cout<<str[i]<<endl;
-        //i++;
     }
 
     Point point;
@@ -54,12 +51,6 @@ void ReadTrajectoryFile(const std::string& filename) {
     point.longitude = std::stod(str[1]);
     point.altitude = std::stod(str[2]);
     point.time = std::stod(str[3]);
-    cout<<4<<endl;
-
-    cout << "point.latitude = " << point.latitude << endl;
-    cout << "point.longitude = " << point.longitude << endl;
-    cout << "point.altitude = " << point.altitude << endl;
-    cout << "point.time = " << point.time << endl;
 
     complete_rtk_trajectory_.push_back(point);
 
