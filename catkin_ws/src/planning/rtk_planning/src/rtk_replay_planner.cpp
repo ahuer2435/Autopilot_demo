@@ -124,7 +124,13 @@ bool Plan(const Point& start_point,std::vector<Point>* ptr_discretized_trajector
 static void plan_callback(const sensor_msgs::NavSatFix& gps_input)
 {
     
-    //TODO
+    bool flags = false;
+    Point curr_pose;
+    curr_pose.latitude = gps_input
+    curr_pose.longitude = gps_input
+    curr_pose.altitude = gps_input
+    double_t time = gps_input
+    flags = Plan(const Point& start_point,std::vector<Point>* ptr_discretized_trajectory)
 }
 
 int main(int argc, char **argv)
