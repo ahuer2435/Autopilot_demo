@@ -2,10 +2,13 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
-#include <rtk_planning/TrajectoryMsg.h>
+//#include <rtk_planning/TrajectoryMsg.h>
+#include <geometry_msgs/PoseArray.h>
 #define FILE_NAME "./garage.csv"
 #define FLAGS_rtk_trajectory_forward 80
 #define FLAGS_trajectory_resolution 0.01
+
+ros::Publisher  pub_trajectory;
 
 using namespace std;
 
@@ -127,17 +130,22 @@ static void plan_callback(const sensor_msgs::NavSatFix& gps_input)
     bool flags = false;
     Point curr_pose;
     std::vector<Point> curr_discretized_trajectory;
-    rtk_planning::TrajectoryMsg curr_trajectory;
+    geometry_msgs::PoseArray curr_trajectory;
     curr_pose.latitude = gps_input.latitude;
     curr_pose.longitude = gps_input.longitude;
     curr_pose.altitude = gps_input.altitude;
-    curr_pose.time = gps_input.time;
+    //curr_pose.time = gps_input.header.stamp;
     flags = Plan(curr_pose,&curr_discretized_trajectory);
     if(!flags){
        cout<<"Plan failed."<<endl;
-       return false;
+       return;
     }
-    curr_tra
+    for(int i = 0; i < curr_discretized_trajectory.size();i++){
+        curr_trajectory.poses[i].position.x =  curr_discretized_trajectory[i].latitude;
+        curr_trajectory.poses[i].position.y =  curr_discretized_trajectory[i].longitude;
+        curr_trajectory.poses[i].position.z =  curr_discretized_trajectory[i].altitude;
+    }
+    pub_trajectory.publish(curr_trajectory);
 }
 
 int main(int argc, char **argv)
@@ -146,7 +154,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ReadTrajectoryFile(FILE_NAME);
     ros::Subscriber sub_gps = nh.subscribe("gps", 10, plan_callback);
-    ros::Publisher  pub_trajectory = nh.advertise< rtk_planning::TrajectoryMsg >("trajectory", 2, true);
+    pub_trajectory = nh.advertise< geometry_msgs::PoseArray >("trajectory", 2, true);
     ros::spin();
 
     return 0;

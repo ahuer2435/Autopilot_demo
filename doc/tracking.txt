@@ -9,3 +9,6 @@ c) 完成脚本：roslaunch nmea_navsat_driver nmea_navsat.launch
 （2） 录制轨迹点：
 a) 命令： rosrun rtk_planning rtk_record_node，录制的文件位于/home/yanqiao/workspace/Autopilot_demo/catkin_ws/garage.csv
 
+(3) 回放:
+a) 命令: rosrun rtk_planning rtk_replay_planner_node 
+
