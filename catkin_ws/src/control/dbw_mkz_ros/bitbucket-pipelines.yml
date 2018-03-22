@@ -1,0 +1,15 @@
+# Docker image from Docker Hub
+image: dataspeedinc/ros:kinetic
+
+pipelines:
+  default:
+    - step:
+        script:
+          - source `find /opt/ros -name setup.bash | sort | head -1` && echo $ROS_DISTRO # Source ROS environment
+          - mkdir src && mv `find -maxdepth 1 -not -name . -not -name src` src/ # Move everything into the src directory
+          - apt update && rosdep install --from-paths src --ignore-src -y # Install dependencies missing from the docker image
+          - catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+          - catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --make-args tests
+          - catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --make-args run_tests -j1
+          - catkin_test_results build_isolated # Display test results and error on any test failure
+

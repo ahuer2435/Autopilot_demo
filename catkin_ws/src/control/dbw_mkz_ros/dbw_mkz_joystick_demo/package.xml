@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dbw_mkz_joystick_demo</name>
+  <version>1.0.12</version>
+  <description>
+    Demonstration of drive-by-wire with joystick
+  </description>
+
+  <license>BSD</license>
+  <author email="mradovnikovich@dataspeedinc.com">Micho Radovnikovich</author>
+  <maintainer email="khallenbeck@dataspeedinc.com">Kevin Hallenbeck</maintainer>
+  <url type="website">http://dataspeedinc.com</url>
+  <url type="repository">https://bitbucket.org/dataspeedinc/dbw_mkz_ros</url>
+  <url type="bugtracker">https://bitbucket.org/dataspeedinc/dbw_mkz_ros/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>dbw_mkz_msgs</depend>
+
+  <exec_depend>roslaunch</exec_depend>
+  <exec_depend>joy</exec_depend>
+  <exec_depend>dbw_mkz_can</exec_depend>
+
+  <test_depend>roslaunch</test_depend>
+
+</package>

@@ -2,6 +2,7 @@
   <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver">
    
       <remap from="fix" to="gps" />
+      <remap from="vel" to="current_velocity" />
       
   </node>
 </launch>

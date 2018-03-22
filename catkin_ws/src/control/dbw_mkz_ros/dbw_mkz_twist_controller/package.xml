@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dbw_mkz_twist_controller</name>
+  <version>1.0.12</version>
+  <description>
+    Twist (speed and angular rate) controller for brake/throttle/steering
+  </description>
+
+  <license>BSD</license>
+  <author email="mradovnikovich@dataspeedinc.com">Micho Radovnikovich</author>
+  <author email="khallenbeck@dataspeedinc.com">Kevin Hallenbeck</author>
+  <maintainer email="mradovnikovich@dataspeedinc.com">Micho Radovnikovich</maintainer>
+  <maintainer email="khallenbeck@dataspeedinc.com">Kevin Hallenbeck</maintainer>
+  <url type="website">http://dataspeedinc.com</url>
+  <url type="repository">https://bitbucket.org/dataspeedinc/dbw_mkz_ros</url>
+  <url type="bugtracker">https://bitbucket.org/dataspeedinc/dbw_mkz_ros/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>dbw_mkz_msgs</depend>
+  <depend>dynamic_reconfigure</depend>
+
+</package>
