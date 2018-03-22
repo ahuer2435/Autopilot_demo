@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>nmea_navsat_driver</name>
-  <version>0.4.2</version>
+  <version>0.4.3</version>
   <description>
 	Package to parse NMEA strings and publish a very simple GPS message. Does not require the GPSD deamon.
   </description>
@@ -25,6 +25,7 @@
   <build_depend>roslint</build_depend>
   <run_depend>rospy</run_depend>
   <run_depend>python-serial</run_depend>
+  <run_depend>geometry</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>nmea_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
