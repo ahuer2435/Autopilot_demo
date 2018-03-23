@@ -22,7 +22,6 @@ static double_t quad_to_yaw(const geometry_msgs::Quaternion &msg)
 
 static void global_pose_vel_callback(const msg_convert::global_pose_vel& global_input)
 {
-    geometry_msgs::TwistStamped velocity;
     double_t line_x,line_y,line_z,angle_x,angle_y,angle_z;
     double_t latitude = global_input.pose.latitude;
     double_t longitude = global_input.pose.longitude;

@@ -4,6 +4,9 @@
 #include <geometry_msgs/PoseArray.h>
 #include <tf/transform_datatypes.h>
 #include <msg_convert/global_pose.h>
+#include <geometry_msgs/TwistStamped.h>
+#include <styx_msgs/Lane.h>
+
 #define FILE_NAME "./garage.csv"
 #define FLAGS_rtk_trajectory_forward 80
 #define FLAGS_trajectory_resolution 0.01
@@ -18,6 +21,7 @@ struct Point{
     double_t altitude;
     double_t time;
     double_t yaw;
+    geometry_msgs::TwistStamped velocity;
 };
 
 vector<Point> complete_rtk_trajectory_;
@@ -57,6 +61,12 @@ void ReadTrajectoryFile(const std::string& filename) {
     point.longitude = std::stod(str[1]);
     point.altitude = std::stod(str[2]);
     point.yaw = std::stod(str[3]);
+    point.velocity.twist.linear.x = std::stod(str[4]);
+    point.velocity.twist.linear.y = std::stod(str[5]);
+    point.velocity.twist.linear.z = std::stod(str[6]);
+    point.velocity.twist.angular.x = std::stod(str[7]);
+    point.velocity.twist.angular.y = std::stod(str[8]);
+    point.velocity.twist.angular.z = std::stod(str[9]);
 
     complete_rtk_trajectory_.push_back(point);
 
@@ -141,7 +151,7 @@ static void plan_callback(const msg_convert::global_pose& global_pose_input)
     bool flags = false;
     Point curr_pose;
     std::vector<Point> curr_discretized_trajectory;
-    geometry_msgs::PoseArray curr_trajectory;
+    styx_msgs::Lane curr_trajectory;
     curr_pose.latitude = global_pose_input.pose.latitude;
     curr_pose.longitude = global_pose_input.pose.longitude;
     curr_pose.altitude = global_pose_input.pose.altitude;
@@ -153,9 +163,11 @@ static void plan_callback(const msg_convert::global_pose& global_pose_input)
        return;
     }
     for(int i = 0; i < curr_discretized_trajectory.size();i++){
-        curr_trajectory.poses[i].position.x =  curr_discretized_trajectory[i].latitude;
-        curr_trajectory.poses[i].position.y =  curr_discretized_trajectory[i].longitude;
-        curr_trajectory.poses[i].position.z =  curr_discretized_trajectory[i].altitude;
+        curr_trajectory.waypoints[i].pose.pose.position.x = curr_discretized_trajectory[i].latitude;
+        curr_trajectory.waypoints[i].pose.pose.position.y = curr_discretized_trajectory[i].longitude;
+        curr_trajectory.waypoints[i].pose.pose.position.z = curr_discretized_trajectory[i].altitude;
+        curr_trajectory.waypoints[i].pose.pose.orientation = tf::createQuaternionMsgFromYaw(curr_discretized_trajectory[i].yaw);
+        curr_trajectory.waypoints[i].twist = curr_discretized_trajectory[i].velocity;
     }
     pub_trajectory.publish(curr_trajectory);
 }
@@ -165,8 +177,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rtk_replay_planner_node");
     ros::NodeHandle nh;
     ReadTrajectoryFile(FILE_NAME);
-    ros::Subscriber sub_gps = nh.subscribe("global_pose", 10, plan_callback);
-    pub_trajectory = nh.advertise< geometry_msgs::PoseArray >("trajectory", 2, true);
+    ros::Subscriber sub_gps = nh.subscribe("global_pose_vel", 10, plan_callback);
+    pub_trajectory = nh.advertise<styx_msgs::Lane>("final_waypoints", 2, true);
     ros::spin();
 
     return 0;
