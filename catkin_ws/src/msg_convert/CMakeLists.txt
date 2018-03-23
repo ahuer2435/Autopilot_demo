@@ -53,7 +53,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   global_pose.msg
+   global_pose_vel.msg
 #   Message2.msg
  )
 
@@ -139,7 +139,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(pose_heading_node src/pose_heading.cpp)
+add_executable(pose_heading_vel_node src/pose_heading_vel.cpp)
+add_executable(trajectory_convert_node src/trajectory_convert.cpp)
+add_executable(pose_global_current_node src/pose_global_current.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,7 +154,9 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(pose_heading_node ${catkin_LIBRARIES} )
+target_link_libraries(pose_heading_vel_node ${catkin_LIBRARIES} )
+target_link_libraries(trajectory_convert_node ${catkin_LIBRARIES} )
+target_link_libraries(pose_global_current_node ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
