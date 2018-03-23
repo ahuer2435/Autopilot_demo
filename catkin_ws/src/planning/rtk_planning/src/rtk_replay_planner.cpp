@@ -1,9 +1,9 @@
 #include<fstream>
 
 #include <ros/ros.h>
-#include <sensor_msgs/NavSatFix.h>
-//#include <rtk_planning/TrajectoryMsg.h>
 #include <geometry_msgs/PoseArray.h>
+#include <tf/transform_datatypes.h>
+#include <msg_convert/global_pose.h>
 #define FILE_NAME "./garage.csv"
 #define FLAGS_rtk_trajectory_forward 80
 #define FLAGS_trajectory_resolution 0.01
@@ -17,6 +17,7 @@ struct Point{
     double_t longitude;
     double_t altitude;
     double_t time;
+    double_t yaw;
 };
 
 vector<Point> complete_rtk_trajectory_;
@@ -55,7 +56,7 @@ void ReadTrajectoryFile(const std::string& filename) {
     point.latitude = std::stod(str[0]);
     point.longitude = std::stod(str[1]);
     point.altitude = std::stod(str[2]);
-    point.time = std::stod(str[3]);
+    point.yaw = std::stod(str[3]);
 
     complete_rtk_trajectory_.push_back(point);
 
@@ -123,18 +124,29 @@ bool Plan(const Point& start_point,std::vector<Point>* ptr_discretized_trajector
   return true;
 }
 
+static double_t quad_to_yaw(const geometry_msgs::Quaternion &msg)
+{
+    tf::Quaternion quad;
+    double_t roll, pitch, yaw;
 
-static void plan_callback(const sensor_msgs::NavSatFix& gps_input)
+    tf::quaternionMsgToTF(msg,quad);
+    tf::Matrix3x3(quad).getRPY(roll, pitch, yaw);
+
+    return yaw;
+}
+
+static void plan_callback(const msg_convert::global_pose& global_pose_input)
 {
     
     bool flags = false;
     Point curr_pose;
     std::vector<Point> curr_discretized_trajectory;
     geometry_msgs::PoseArray curr_trajectory;
-    curr_pose.latitude = gps_input.latitude;
-    curr_pose.longitude = gps_input.longitude;
-    curr_pose.altitude = gps_input.altitude;
-    //curr_pose.time = gps_input.header.stamp;
+    curr_pose.latitude = global_pose_input.pose.latitude;
+    curr_pose.longitude = global_pose_input.pose.longitude;
+    curr_pose.altitude = global_pose_input.pose.altitude;
+    curr_pose.yaw = quad_to_yaw(global_pose_input.heading.quaternion);
+
     flags = Plan(curr_pose,&curr_discretized_trajectory);
     if(!flags){
        cout<<"Plan failed."<<endl;
@@ -153,7 +165,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rtk_replay_planner_node");
     ros::NodeHandle nh;
     ReadTrajectoryFile(FILE_NAME);
-    ros::Subscriber sub_gps = nh.subscribe("gps", 10, plan_callback);
+    ros::Subscriber sub_gps = nh.subscribe("global_pose", 10, plan_callback);
     pub_trajectory = nh.advertise< geometry_msgs::PoseArray >("trajectory", 2, true);
     ros::spin();
 
