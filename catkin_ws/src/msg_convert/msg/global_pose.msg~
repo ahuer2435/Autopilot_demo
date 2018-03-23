@@ -1,0 +1,3 @@
+Header header
+sensor_msgs/NavSatFix pose
+geometry_msgs/QuaternionStamped heading
