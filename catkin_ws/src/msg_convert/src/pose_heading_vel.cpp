@@ -6,14 +6,14 @@
 
 #include <sensor_msgs/NavSatFix.h>
 #include <geometry_msgs/QuaternionStamped.h>
-#include <msg_convert/global_pose.h>
+#include <msg_convert/global_pose_vel.h>
 #include <geometry_msgs/TwistStamped.h>
 
 ros::Publisher  pub_pose;
 
 void callback(const sensor_msgs::NavSatFixConstPtr &gps_input, const geometry_msgs::QuaternionStampedConstPtr &heading_input,const geometry_msgs::TwistStampedConstPtr &vel_input)
 {
-   msg_convert::global_pose global_pose_vel;
+   msg_convert::global_pose_vel global_pose_vel;
    global_pose_vel.header.stamp = gps_input->header.stamp;
    global_pose_vel.header.frame_id = gps_input->header.frame_id;
    global_pose_vel.pose = *gps_input;
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), gps_sub, heading_sub, vel_sub);
     sync.registerCallback(boost::bind(&callback, _1, _2, _3));
 
-    pub_pose = nh.advertise< msg_convert::global_pose >("global_pose_vel", 2, true);
+    pub_pose = nh.advertise< msg_convert::global_pose_vel >("global_pose_vel", 2, true);
     ros::spin();
 
     return 0;

@@ -140,7 +140,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(pose_heading_vel_node src/pose_heading_vel.cpp)
-add_executable(trajectory_convert_node src/trajectory_convert.cpp)
+#add_executable(trajectory_convert_node src/trajectory_convert.cpp)
 add_executable(pose_global_current_node src/pose_global_current.cpp)
 
 ## Rename C++ executable without prefix
@@ -155,7 +155,7 @@ add_executable(pose_global_current_node src/pose_global_current.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pose_heading_vel_node ${catkin_LIBRARIES} )
-target_link_libraries(trajectory_convert_node ${catkin_LIBRARIES} )
+#target_link_libraries(trajectory_convert_node ${catkin_LIBRARIES} )
 target_link_libraries(pose_global_current_node ${catkin_LIBRARIES} )
 
 #############
