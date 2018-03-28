@@ -23,12 +23,14 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roslint</build_depend>
+  <build_depend>message_generation</build_depend>
   <run_depend>rospy</run_depend>
   <run_depend>python-serial</run_depend>
   <run_depend>geometry</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>nmea_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

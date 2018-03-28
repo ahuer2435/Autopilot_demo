@@ -40,13 +40,14 @@ from tf.transformations import quaternion_from_euler
 
 from libnmea_navsat_driver.checksum_utils import check_nmea_checksum
 import libnmea_navsat_driver.parser
+from nmea_navsat_driver.msg import Eulers
 
 
 class RosNMEADriver(object):
     def __init__(self):
         self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=1)
         self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=1)
-        self.heading_pub = rospy.Publisher('heading', QuaternionStamped, queue_size=1)
+        self.heading_pub = rospy.Publisher('heading', Eulers, queue_size=1)
         self.time_ref_pub = rospy.Publisher('time_reference', TimeReference, queue_size=1)
 
         self.time_ref_source = rospy.get_param('~time_ref_source', None)
@@ -166,20 +167,15 @@ class RosNMEADriver(object):
                     math.sin(data['true_course'])
                 current_vel.twist.linear.y = data['speed'] * \
                     math.cos(data['true_course'])
+                current_heading = Eulers()
+                current_heading.header.stamp = current_time
+                current_heading.header.frame_id = frame_id
+                current_heading.roll = 0
+                current_heading.pitch = 0
+                current_heading.yaw = math.radians(data['true_course'])               
                 self.vel_pub.publish(current_vel)
+                self.heading_pub.publish(current_heading)
 
-        elif 'HDT' in parsed_sentence:
-              data = parsed_sentence['HDT']
-              if data['heading']:
-                  current_heading = QuaternionStamped()
-                  current_heading.header.stamp = current_time
-                  current_heading.header.frame_id = frame_id
-                  q = quaternion_from_euler(0, 0, math.radians(data['heading']))
-                  current_heading.quaternion.x = q[0]
-                  current_heading.quaternion.y = q[1]
-                  current_heading.quaternion.z = q[2]
-                  current_heading.quaternion.w = q[3]
-                  self.heading_pub.publish(current_heading)
         else:
             return False
 

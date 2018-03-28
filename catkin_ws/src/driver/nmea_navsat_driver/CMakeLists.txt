@@ -1,9 +1,20 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(nmea_navsat_driver)
 
-find_package(catkin REQUIRED COMPONENTS roslint)
+find_package(catkin REQUIRED COMPONENTS roslint message_generation std_msgs)
 
 catkin_python_setup()
+
+add_message_files(
+   FILES
+   Eulers.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
 catkin_package()
 
 install(PROGRAMS
