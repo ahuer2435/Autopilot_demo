@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_filters
   message_generation
+  nmea_navsat_driver
 )
 
 ## System dependencies are found with CMake's conventions
@@ -76,7 +77,7 @@ find_package(catkin REQUIRED COMPONENTS
    DEPENDENCIES
    std_msgs
    sensor_msgs
-   geometry_msgs
+   nmea_navsat_driver
  )
 
 ################################################

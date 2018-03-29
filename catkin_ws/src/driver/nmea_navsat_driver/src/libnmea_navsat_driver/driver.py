@@ -46,21 +46,21 @@ from nmea_navsat_driver.msg import Eulers
 class RosNMEADriver(object):
     def __init__(self):
         self.fix_pub = rospy.Publisher('fix', NavSatFix, queue_size=1)
+	self.gga_fix_pub = rospy.Publisher('gga_fix', NavSatFix, queue_size=1)
         self.vel_pub = rospy.Publisher('vel', TwistStamped, queue_size=1)
         self.heading_pub = rospy.Publisher('heading', Eulers, queue_size=1)
         self.time_ref_pub = rospy.Publisher('time_reference', TimeReference, queue_size=1)
 
         self.time_ref_source = rospy.get_param('~time_ref_source', None)
-        self.use_RMC = rospy.get_param('~useRMC', False)
+        self.use_RMC = rospy.get_param('~useRMC', True)
 
     # Returns True if we successfully did something with the passed in
     # nmea_string
     def add_sentence(self, nmea_string, frame_id, timestamp=None):
         if not check_nmea_checksum(nmea_string):
-            rospy.logwarn("Received a sentence with an invalid checksum. " +
-                          "Sentence was: %s" % repr(nmea_string))
+            #rospy.logwarn("Received a sentence with an invalid checksum. " + "Sentence was: %s" % repr(nmea_string))
             return False
-
+	
         parsed_sentence = libnmea_navsat_driver.parser.parse_nmea_sentence(nmea_string)
         if not parsed_sentence:
             rospy.logdebug("Failed to parse NMEA sentence. Sentece was: %s" % nmea_string)
@@ -84,43 +84,44 @@ class RosNMEADriver(object):
         if not self.use_RMC and 'GGA' in parsed_sentence:
             data = parsed_sentence['GGA']
             gps_qual = data['fix_type']
+            gga_current_fix = current_fix
             if gps_qual == 0:
-                current_fix.status.status = NavSatStatus.STATUS_NO_FIX
+                gga_current_fix.status.status = NavSatStatus.STATUS_NO_FIX
             elif gps_qual == 1:
-                current_fix.status.status = NavSatStatus.STATUS_FIX
+                gga_current_fix.status.status = NavSatStatus.STATUS_FIX
             elif gps_qual == 2:
-                current_fix.status.status = NavSatStatus.STATUS_SBAS_FIX
+                gga_current_fix.status.status = NavSatStatus.STATUS_SBAS_FIX
             elif gps_qual in (4, 5):
-                current_fix.status.status = NavSatStatus.STATUS_GBAS_FIX
+                gga_current_fix.status.status = NavSatStatus.STATUS_GBAS_FIX
             else:
-                current_fix.status.status = NavSatStatus.STATUS_NO_FIX
+                gga_current_fix.status.status = NavSatStatus.STATUS_NO_FIX
 
-            current_fix.status.service = NavSatStatus.SERVICE_GPS
+            gga_current_fix.status.service = NavSatStatus.SERVICE_GPS
 
-            current_fix.header.stamp = current_time
+            gga_current_fix.header.stamp = current_time
 
             latitude = data['latitude']
             if data['latitude_direction'] == 'S':
                 latitude = -latitude
-            current_fix.latitude = latitude
+            gga_current_fix.latitude = latitude
 
             longitude = data['longitude']
             if data['longitude_direction'] == 'W':
                 longitude = -longitude
-            current_fix.longitude = longitude
+            gga_current_fix.longitude = longitude
 
             hdop = data['hdop']
-            current_fix.position_covariance[0] = hdop ** 2
-            current_fix.position_covariance[4] = hdop ** 2
-            current_fix.position_covariance[8] = (2 * hdop) ** 2  # FIXME
-            current_fix.position_covariance_type = \
+            gga_current_fix.position_covariance[0] = hdop ** 2
+            gga_current_fix.position_covariance[4] = hdop ** 2
+            gga_current_fix.position_covariance[8] = (2 * hdop) ** 2  # FIXME
+            gga_current_fix.position_covariance_type = \
                 NavSatFix.COVARIANCE_TYPE_APPROXIMATED
 
             # Altitude is above ellipsoid, so adjust for mean-sea-level
             altitude = data['altitude'] + data['mean_sea_level']
-            current_fix.altitude = altitude
-
-            self.fix_pub.publish(current_fix)
+            gga_current_fix.altitude = altitude
+            
+            self.gga_fix_pub.publish(gga_current_fix)
 
             if not math.isnan(data['utc_time']):
                 current_time_ref.time_ref = rospy.Time.from_sec(data['utc_time'])
@@ -149,10 +150,11 @@ class RosNMEADriver(object):
                 current_fix.longitude = longitude
 
                 current_fix.altitude = float('NaN')
-                current_fix.position_covariance_type = \
-                    NavSatFix.COVARIANCE_TYPE_UNKNOWN
+                current_fix.position_covariance_type = NavSatFix.COVARIANCE_TYPE_UNKNOWN
 
+                rospy.logwarn("tag1. ") 
                 self.fix_pub.publish(current_fix)
+                rospy.logwarn("tag2. ")
 
                 if not math.isnan(data['utc_time']):
                     current_time_ref.time_ref = rospy.Time.from_sec(data['utc_time'])
@@ -163,10 +165,8 @@ class RosNMEADriver(object):
                 current_vel = TwistStamped()
                 current_vel.header.stamp = current_time
                 current_vel.header.frame_id = frame_id
-                current_vel.twist.linear.x = data['speed'] * \
-                    math.sin(data['true_course'])
-                current_vel.twist.linear.y = data['speed'] * \
-                    math.cos(data['true_course'])
+                current_vel.twist.linear.x = data['speed'] * math.sin(data['true_course'])
+                current_vel.twist.linear.y = data['speed'] * math.cos(data['true_course'])
                 current_heading = Eulers()
                 current_heading.header.stamp = current_time
                 current_heading.header.frame_id = frame_id

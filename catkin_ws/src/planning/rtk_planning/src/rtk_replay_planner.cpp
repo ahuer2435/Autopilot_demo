@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseArray.h>
 #include <tf/transform_datatypes.h>
-#include <msg_convert/global_pose.h>
+#include <msg_convert/global_pose_vel.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <styx_msgs/Lane.h>
 
@@ -145,7 +145,7 @@ static double_t quad_to_yaw(const geometry_msgs::Quaternion &msg)
     return yaw;
 }
 
-static void plan_callback(const msg_convert::global_pose& global_pose_input)
+static void plan_callback(const msg_convert::global_pose_vel& global_pose_input)
 {
     
     bool flags = false;
@@ -155,7 +155,7 @@ static void plan_callback(const msg_convert::global_pose& global_pose_input)
     curr_pose.latitude = global_pose_input.pose.latitude;
     curr_pose.longitude = global_pose_input.pose.longitude;
     curr_pose.altitude = global_pose_input.pose.altitude;
-    curr_pose.yaw = quad_to_yaw(global_pose_input.heading.quaternion);
+    curr_pose.yaw = global_pose_input.heading.yaw;
 
     flags = Plan(curr_pose,&curr_discretized_trajectory);
     if(!flags){

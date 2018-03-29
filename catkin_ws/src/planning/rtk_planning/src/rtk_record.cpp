@@ -26,7 +26,7 @@ static void global_pose_vel_callback(const msg_convert::global_pose_vel& global_
     double_t latitude = global_input.pose.latitude;
     double_t longitude = global_input.pose.longitude;
     double_t altitude = global_input.pose.altitude;
-    double_t yaw = quad_to_yaw(global_input.heading.quaternion);
+    double_t yaw = global_input.heading.yaw;
     line_x = global_input.vel.twist.linear.x;
     line_y = global_input.vel.twist.linear.y;
     line_z = global_input.vel.twist.linear.z;

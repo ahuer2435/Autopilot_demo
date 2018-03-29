@@ -1,4 +1,4 @@
 Header header
 sensor_msgs/NavSatFix pose
-geometry_msgs/QuaternionStamped heading
+nmea_navsat_driver/Eulers heading
 geometry_msgs/TwistStamped vel
