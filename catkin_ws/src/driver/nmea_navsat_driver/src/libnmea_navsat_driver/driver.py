@@ -58,7 +58,7 @@ class RosNMEADriver(object):
     # nmea_string
     def add_sentence(self, nmea_string, frame_id, timestamp=None):
         if not check_nmea_checksum(nmea_string):
-            #rospy.logwarn("Received a sentence with an invalid checksum. " + "Sentence was: %s" % repr(nmea_string))
+            rospy.logwarn("Received a sentence with an invalid checksum. " + "Sentence was: %s" % repr(nmea_string))
             return False
 	
         parsed_sentence = libnmea_navsat_driver.parser.parse_nmea_sentence(nmea_string)
@@ -152,9 +152,7 @@ class RosNMEADriver(object):
                 current_fix.altitude = float('NaN')
                 current_fix.position_covariance_type = NavSatFix.COVARIANCE_TYPE_UNKNOWN
 
-                rospy.logwarn("tag1. ") 
                 self.fix_pub.publish(current_fix)
-                rospy.logwarn("tag2. ")
 
                 if not math.isnan(data['utc_time']):
                     current_time_ref.time_ref = rospy.Time.from_sec(data['utc_time'])
