@@ -19,7 +19,11 @@ roslaunch nmea_navsat_driver gps_driver.launch
 rosrun msg_convert pose_heading_vel_node
 rosrun rtk_planning rtk_record_node
 ```
-生成轨迹文件： garage.csv
+
+### 录制路点架构图：
+![waypoints_record_arch](docs/images/waypoints_record_arch.png)
+
+生成轨迹文件： garage.csv。
 
 ## 循迹系统：
 ### 启动循迹系统指令：
