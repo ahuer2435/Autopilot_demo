@@ -1,24 +1,14 @@
-#ifdef WIN32 // for windows
-#   include <windows.h>
-#   include <process.h>
-#   include <stdio.h>
-#   include <time.h>
-#   include "controlcan.h"
-#   pragma comment(lib, "controlcan.lib")
-#   define msleep(ms)  Sleep(ms)
-typedef HANDLE pthread_t;
-#else // for linux
-#   include <stdio.h>
-#   include <string.h>
-#   include <unistd.h>
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#   include <fcntl.h>
-#   include <pthread.h>
-#   include "controlcan.h"
-#   define msleep(ms)  usleep((ms)*1000)
-#   define min(a,b)  (((a) < (b)) ? (a) : (b))
-#endif
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include "controlcan.h"
+#define msleep(ms)  usleep((ms)*1000)
+#define min(a,b)  (((a) < (b)) ? (a) : (b))
+
 
 #define MAX_CHANNELS  1
 #define CHECK_POINT  200
@@ -33,6 +23,7 @@ unsigned gTxType = 0;
 unsigned gTxSleep = 0;
 unsigned gTxFrames = 0;
 
+//字符串转为无符号整数
 unsigned s2n(const char *s)
 {
     unsigned l = strlen(s);
@@ -53,6 +44,7 @@ unsigned s2n(const char *s)
     return v;
 }
 
+//填充can结构。
 void generate_frame(VCI_CAN_OBJ *can)
 {
     memset(can, 0, sizeof(VCI_CAN_OBJ));
@@ -72,6 +64,7 @@ void generate_frame(VCI_CAN_OBJ *can)
     can->ID |= can->ID << 11; // id: bit22~bit28 == bit0~bit7
 }
 
+//检验can结构，fail返回0，success返回1
 int verify_frame(VCI_CAN_OBJ *can)
 {
     if (can->DataLen > 8) return 0; // error: data length
@@ -87,6 +80,7 @@ int verify_frame(VCI_CAN_OBJ *can)
     return 1; // ext-frame ok
 }
 
+//这个结构的意义是什么？
 typedef struct {
     unsigned channel; // channel index, 0~3
     unsigned stop; // stop RX-thread
@@ -94,11 +88,8 @@ typedef struct {
     unsigned error; // error(s) detected
 } RX_CTX;
 
-#ifdef WIN32
-unsigned __stdcall rx_thread(void *data)
-#else
+//接收进程。
 void * rx_thread(void *data)
-#endif
 {
     RX_CTX *ctx = (RX_CTX *)data;
     ctx->total = 0; // reset counter
@@ -130,15 +121,9 @@ void * rx_thread(void *data)
         }
     }
 
-    printf("CAN%d RX thread terminated, %d frames received & verified: %s\n",
-        ctx->channel, ctx->total, ctx->error ? "error(s) detected" : "no error");
-
-#ifdef WIN32
-    _endthreadex(0);
-    return 0;
-#else
+    printf("CAN%d RX thread terminated, %d frames received & verified: %s\n",ctx->channel, ctx->total, ctx->error ? "error(s) detected" : "no error");
     pthread_exit(0);
-#endif
+
 }
 
 int test()
@@ -197,11 +182,7 @@ int test()
         rx_ctx[i].stop = 0;
         rx_ctx[i].total = 0;
         rx_ctx[i].error = 0;
-#ifdef WIN32
-        rx_threads[i] = (HANDLE)_beginthreadex(NULL, 0, rx_thread, &rx_ctx[i], 0, NULL);
-#else
         pthread_create(&rx_threads[i], NULL, rx_thread, &rx_ctx[i]);
-#endif
     }
 
     // ----- wait --------------------------------------------------------
@@ -244,12 +225,7 @@ int test()
         if ((gChMask & (1 << i)) == 0) continue;
 
         rx_ctx[i].stop = 1;
-#ifdef WIN32
-        WaitForSingleObject(rx_threads[i], INFINITE);
-        CloseHandle(rx_threads[i]);
-#else
         pthread_join(rx_threads[i], NULL);
-#endif
         if (rx_ctx[i].error)
             err = 1;
     }
@@ -314,5 +290,3 @@ int main(int argc, char* argv[])
     printf("VCI_CloseDevice\n");
     return 0;
 }
-
-
