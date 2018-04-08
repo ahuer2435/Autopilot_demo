@@ -55,6 +55,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
    FILES
    global_pose_vel.msg
+   vehicle_cmd.msg
 #   Message2.msg
  )
 
@@ -141,8 +142,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(pose_heading_vel_node src/pose_heading_vel.cpp)
-#add_executable(trajectory_convert_node src/trajectory_convert.cpp)
 add_executable(pose_global_current_node src/pose_global_current.cpp)
+add_executable(vechie_cmd_to_can_message_node src/vechie_cmd_to_can_message.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,8 +157,8 @@ add_executable(pose_global_current_node src/pose_global_current.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pose_heading_vel_node ${catkin_LIBRARIES} )
-#target_link_libraries(trajectory_convert_node ${catkin_LIBRARIES} )
 target_link_libraries(pose_global_current_node ${catkin_LIBRARIES} )
+target_link_libraries(vechie_cmd_to_can_message_node ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
