@@ -245,6 +245,7 @@ int test()
     return 1;
 }
 
+
 int main(int argc, char* argv[])
 {
     if (argc < 7) {
@@ -290,3 +291,4 @@ int main(int argc, char* argv[])
     printf("VCI_CloseDevice\n");
     return 0;
 }
+
