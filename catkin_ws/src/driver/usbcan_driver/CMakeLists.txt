@@ -147,8 +147,11 @@ include_directories(
 #target_link_libraries(usbcan_send_node   ${catkin_LIBRARIES})
 include_directories(include ${catkin_INCLUDE_DIRS})
 add_executable(usbcan_send_node src/usbcan_send_node.cpp src/usbcan_interface.c)
-#add_dependencies(usbcan_send_node usbcan_driver_generate_messages_cpp)
 target_link_libraries(usbcan_send_node   ${catkin_LIBRARIES} libusbcan.so)
+
+add_executable(usbcan_receive_node src/usbcan_receive_node.cpp src/usbcan_interface.c)
+target_link_libraries(usbcan_receive_node   ${catkin_LIBRARIES} libusbcan.so)
+
 
 #############
 ## Install ##

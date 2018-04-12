@@ -48,9 +48,9 @@ int main(int argc, char **argv)
 
     gDevType = 16;
     gDevIdx = 0;
-    gChMask = 3;
+    gChMask = 1;
     gBaud = 0x1400;
-    gTxType = 2;
+    gTxType = 0;
     gTxSleep = 3;
     gTxFrames = 1000;
     init_usbcan( gDevType, gDevIdx, gChMask, gBaud, gTxType, gTxSleep, gTxFrames);

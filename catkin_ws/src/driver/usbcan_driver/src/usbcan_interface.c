@@ -166,5 +166,6 @@ int send_usbcan(VCI_CAN_OBJ* can)
         }
         if (gTxSleep) msleep(gTxSleep);
     }
+    printf("send end.\n");
     return 0;
 }
