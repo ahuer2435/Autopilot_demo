@@ -6,6 +6,7 @@ extern "C" {
 #endif
 int init_usbcan(unsigned DevType,unsigned DevIdx,unsigned ChMask,unsigned Band,unsigned TxType,unsigned TxSleep,unsigned TxFrame);
 int send_usbcan(VCI_CAN_OBJ* can);
+int receive_usbcan(VCI_CAN_OBJ can[],int channel);
 int close_usbcan();
 #ifdef __cplusplus
 }

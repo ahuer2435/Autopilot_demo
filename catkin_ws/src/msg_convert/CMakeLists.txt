@@ -56,6 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    global_pose_vel.msg
    vehicle_cmd.msg
+   vehicle_status.msg
 #   Message2.msg
  )
 

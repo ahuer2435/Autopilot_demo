@@ -12,7 +12,7 @@
 
 #define MAX_CHANNELS  1
 #define CHECK_POINT  200
-#define RX_WAIT_TIME  100
+#define RX_WAIT_TIME  -1
 #define RX_BUFF_SIZE  1000
 
 static unsigned gDevType = 0;
@@ -67,17 +67,17 @@ void generate_frame(VCI_CAN_OBJ *can)
 //检验can结构，fail返回0，success返回1
 int verify_frame(VCI_CAN_OBJ *can)
 {
-    if (can->DataLen > 8) return 0; // error: data length
+    if (can->DataLen > 8) return -1; // error: data length
     unsigned bcc = 0;
     unsigned i;
     for (i = 0; i < can->DataLen; i++)
         bcc ^= can->Data[i];
-    if ((can->ID & 0xff) != bcc) return 0; // error: data checksum
-    if (((can->ID >> 8) & 7) != (can->DataLen - 1)) return 0; // error: data length
-    if (!can->ExternFlag) return 1; // std-frame ok
-    if (((can->ID >> 11) & 0x7ff) != (can->ID & 0x7ff)) return 0; // error: frame id
-    if (((can->ID >> 22) & 0x7f) != (can->ID & 0x7f)) return 0; // error: frame id
-    return 1; // ext-frame ok
+    if ((can->ID & 0xff) != bcc) return -1; // error: data checksum
+    if (((can->ID >> 8) & 7) != (can->DataLen - 1)) return -1; // error: data length
+    if (!can->ExternFlag) return 0; // std-frame ok
+    if (((can->ID >> 11) & 0x7ff) != (can->ID & 0x7ff)) return -1; // error: frame id
+    if (((can->ID >> 22) & 0x7f) != (can->ID & 0x7f)) return -1; // error: frame id
+    return 0; // ext-frame ok
 }
 
 //这个结构的意义是什么？
@@ -168,4 +168,19 @@ int send_usbcan(VCI_CAN_OBJ* can)
     }
     printf("send end.\n");
     return 0;
+}
+
+
+//接收进程接口。
+int receive_usbcan(VCI_CAN_OBJ can[], int channel)
+{
+    int cnt;
+    int ret = 0;
+    cnt = VCI_Receive(gDevType, gDevIdx, channel, can, RX_BUFF_SIZE, RX_WAIT_TIME);
+    if (0xFFFFFFFF == cnt){
+        ret = -1;
+    }else{
+        ret = cnt;
+    }
+    return ret;
 }
