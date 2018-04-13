@@ -146,11 +146,11 @@ include_directories(
 ## Specify libraries to link a library or executable target against
 #target_link_libraries(usbcan_send_node   ${catkin_LIBRARIES})
 include_directories(include ${catkin_INCLUDE_DIRS})
-add_executable(usbcan_send_node src/usbcan_send_node.cpp src/usbcan_interface.c)
-target_link_libraries(usbcan_send_node   ${catkin_LIBRARIES} libusbcan.so)
+add_executable(usbcan_node src/usbcan_node.cpp src/usbcan_interface.c)
+target_link_libraries(usbcan_node   ${catkin_LIBRARIES} libusbcan.so)
 
-add_executable(usbcan_receive_node src/usbcan_receive_node.cpp src/usbcan_interface.c)
-target_link_libraries(usbcan_receive_node   ${catkin_LIBRARIES} libusbcan.so)
+#add_executable(usbcan_receive_node src/usbcan_receive_node.cpp src/usbcan_interface.c)
+#target_link_libraries(usbcan_receive_node   ${catkin_LIBRARIES} libusbcan.so)
 
 
 #############
