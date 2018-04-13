@@ -37,7 +37,7 @@ void callback(const SteeringStampedConstPtr &steering_input, const ThrottleStamp
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "pose_heading_vel_node");
+    ros::init(argc, argv, "vechie_cmd_to_can_message_node");
     ros::NodeHandle nh;
 
     message_filters::Subscriber<dbw_mkz_msgs::SteeringCmd> gps_sub(nh, "vehicle/steering_cmd", 10);
