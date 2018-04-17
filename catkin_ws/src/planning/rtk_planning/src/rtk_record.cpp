@@ -23,9 +23,9 @@ static double_t quad_to_yaw(const geometry_msgs::Quaternion &msg)
 static void global_pose_vel_callback(const msg_convert::global_pose_vel& global_input)
 {
     double_t line_x,line_y,line_z,angle_x,angle_y,angle_z;
-    double_t latitude = global_input.pose.latitude;
-    double_t longitude = global_input.pose.longitude;
-    double_t altitude = global_input.pose.altitude;
+    double_t x = global_input.pose.pose.position.x;
+    double_t y = global_input.pose.pose.position.y;
+    double_t z = global_input.pose.pose.position.z;
     double_t yaw = global_input.heading.yaw;
     line_x = global_input.vel.twist.linear.x;
     line_y = global_input.vel.twist.linear.y;
@@ -35,7 +35,7 @@ static void global_pose_vel_callback(const msg_convert::global_pose_vel& global_
     angle_z = global_input.vel.twist.angular.z;
 
 
-    outfile << latitude <<"," << longitude <<"," << altitude  <<"," << yaw << "," \
+    outfile << x <<"," << y <<"," << z  <<"," << yaw << "," \
                << line_x <<"," << line_y  <<"," << line_z << "," \
                << angle_x <<"," << angle_y  <<"," << angle_z <<std::endl;
 }
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
     ros::Subscriber sub_gps = nh.subscribe("global_pose_vel", 10, global_pose_vel_callback);
     outfile.open(FILE_NAME);
-    outfile << "latitude," << "longitude," << "altitude," << "yaw," \
+    outfile << "x," << "y," << "z," << "yaw," \
             << "line_x,"  << "line_y," << "line_z," \
             << "angle_x," << "angle_y," << "angle_z" << std::endl;
 

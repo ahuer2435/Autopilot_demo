@@ -17,9 +17,9 @@ ros::Publisher  pub_trajectory;
 using namespace std;
 
 struct Point_strut{
-    double_t latitude;
-    double_t longitude;
-    double_t altitude;
+    double_t x;
+    double_t y;
+    double_t z;
     double_t time;
     double_t yaw;
     geometry_msgs::TwistStamped velocity;
@@ -58,9 +58,9 @@ void ReadTrajectoryFile(const std::string& filename) {
 
     Point_strut point;
 
-    point.latitude = std::stod(str[0]);
-    point.longitude = std::stod(str[1]);
-    point.altitude = std::stod(str[2]);
+    point.x = std::stod(str[0]);
+    point.y = std::stod(str[1]);
+    point.z = std::stod(str[2]);
     point.yaw = std::stod(str[3]);
     point.velocity.twist.linear.x = std::stod(str[4]);
     point.velocity.twist.linear.y = std::stod(str[5]);
@@ -79,14 +79,14 @@ void ReadTrajectoryFile(const std::string& filename) {
 
 size_t QueryPositionMatchedPoint(const Point_strut& start_point,const vector<Point_strut>& trajectory) {
   auto func_distance_square = [](const Point_strut& point, const double x,const double y) {
-    double dx = point.latitude - x;
-    double dy = point.longitude - y;
+    double dx = point.x - x;
+    double dy = point.y - y;
     return dx * dx + dy * dy;
   };
-  double d_min = func_distance_square(trajectory.front(), start_point.latitude,start_point.longitude);
+  double d_min = func_distance_square(trajectory.front(), start_point.x,start_point.y);
   size_t index_min = 0;
   for (size_t i = 1; i < trajectory.size(); ++i) {
-    double d_temp = func_distance_square(trajectory[i], start_point.latitude,start_point.longitude);
+    double d_temp = func_distance_square(trajectory[i], start_point.x,start_point.y);
     if (d_temp < d_min) {
       d_min = d_temp;
       index_min = i;
@@ -153,9 +153,9 @@ static void plan_callback(const msg_convert::global_pose_vel& global_pose_input)
     std::vector<Point_strut> curr_discretized_trajectory;
     styx_msgs::Lane curr_trajectory;
 
-    curr_pose.latitude = global_pose_input.pose.latitude;
-    curr_pose.longitude = global_pose_input.pose.longitude;
-    curr_pose.altitude = global_pose_input.pose.altitude;
+    curr_pose.x = global_pose_input.pose.pose.position.x;
+    curr_pose.y = global_pose_input.pose.pose.position.y;
+    curr_pose.z = global_pose_input.pose.pose.position.z;
     curr_pose.yaw = global_pose_input.heading.yaw;
 
     flags = Plan(curr_pose,&curr_discretized_trajectory);
@@ -166,9 +166,9 @@ static void plan_callback(const msg_convert::global_pose_vel& global_pose_input)
 
     for(int i = 0; i < curr_discretized_trajectory.size();i++){
         styx_msgs::Waypoint way_point;
-        way_point.pose.pose.position.x = curr_discretized_trajectory[i].latitude;
-        way_point.pose.pose.position.y = curr_discretized_trajectory[i].longitude;
-        way_point.pose.pose.position.z = curr_discretized_trajectory[i].altitude;
+        way_point.pose.pose.position.x = curr_discretized_trajectory[i].x;
+        way_point.pose.pose.position.y = curr_discretized_trajectory[i].y;
+        way_point.pose.pose.position.z = curr_discretized_trajectory[i].z;
         way_point.pose.pose.orientation = tf::createQuaternionMsgFromYaw(curr_discretized_trajectory[i].yaw);
         way_point.twist = curr_discretized_trajectory[i].velocity;
         curr_trajectory.waypoints.push_back(way_point);
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ReadTrajectoryFile(FILE_NAME);
     ros::Subscriber sub_gps = nh.subscribe("global_pose_vel", 10, plan_callback);
-    pub_trajectory = nh.advertise<styx_msgs::Lane>("final_waypoints", 2, true);
+    pub_trajectory = nh.advertise<styx_msgs::Lane>("final_waypoints", 2);
     ros::spin();
 
     return 0;

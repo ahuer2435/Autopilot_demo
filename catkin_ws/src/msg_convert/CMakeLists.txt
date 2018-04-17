@@ -80,6 +80,7 @@ find_package(catkin REQUIRED COMPONENTS
    std_msgs
    sensor_msgs
    nmea_navsat_driver
+   geometry_msgs
  )
 
 ################################################
