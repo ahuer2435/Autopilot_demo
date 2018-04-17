@@ -371,6 +371,11 @@ geometry_msgs::TwistStamped PurePursuit::go()
     }
     return outputZero();
   }
+  else{
+      pose_set_ = false;
+      waypoint_set_ = false;
+      velocity_set_ = false;
+  }
 
   bool interpolate_flag = false;
 
