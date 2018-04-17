@@ -34,7 +34,7 @@ static void global_pose_vel_callback(const msg_convert::global_pose_vel& global_
     angle_y = global_input.vel.twist.angular.y;
     angle_z = global_input.vel.twist.angular.z;
 
-
+    //printf("global_input.pose.pose.position.z = %lf\n",global_input.pose.pose.position.z);
     outfile << x <<"," << y <<"," << z  <<"," << yaw << "," \
                << line_x <<"," << line_y  <<"," << line_z << "," \
                << angle_x <<"," << angle_y  <<"," << angle_z <<std::endl;

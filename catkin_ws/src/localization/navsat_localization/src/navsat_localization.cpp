@@ -16,10 +16,15 @@ static void gps_callback(const sensor_msgs::NavSatFix& global_pose)
     pose.header.stamp = global_pose.header.stamp;
     pose.pose.position.x = easting;
     pose.pose.position.y = northing;
-    pose.pose.position.z = global_pose.altitude;
+    if(isnan(global_pose.altitude)){
+        pose.pose.position.z = 0.0;
+        //printf("isnan global_pose.altitude = %lf\n",global_pose.altitude);
+    }else{
+        pose.pose.position.z = global_pose.altitude;
+        //printf("isnot nan global_pose.altitude = %lf\n",global_pose.altitude);
+    }
 
     pub_pose.publish(pose);
-
     return;
 }
 
