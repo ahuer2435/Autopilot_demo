@@ -35,8 +35,6 @@ constexpr int LOOP_RATE = 3; //processing frequency
 
 int main(int argc, char **argv)
 {
-
-
   // set up ros
   ros::init(argc, argv, "pure_pursuit");
 
@@ -55,6 +53,7 @@ int main(int argc, char **argv)
 
   ROS_INFO("set subscriber...");
   // subscribe topic
+  //第四个参数是一个对象引用，此形式第三个参数回调函数需要时此类的公有成员函数。
   ros::Subscriber waypoint_subscriber =
       nh.subscribe("final_waypoints", 10, &waypoint_follower::PurePursuit::callbackFromWayPoints, &pp);
   ros::Subscriber ndt_subscriber =

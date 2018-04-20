@@ -54,7 +54,7 @@ void PurePursuit::callbackFromWayPoints(const styx_msgs::LaneConstPtr &msg)
   // ROS_INFO_STREAM("waypoint subscribed");
 }
 
-//根据路点index，返回相应的速度。
+//根据路点index，返回相应的线速度。
 //为什么参数都是0？
 double PurePursuit::getCmdVelocity(int waypoint) const
 {
@@ -69,7 +69,9 @@ double PurePursuit::getCmdVelocity(int waypoint) const
   return velocity;
 }
 
-//计算向前看的距离lookahead_distance_，参数没有用。
+//计算前视距离lookahead_distance_，参数没有用。
+//lookahead_distance_ = 当前速度（m/s）*lookahead_distance_calc_ratio_(2.0)
+//最小值是6m，做大值是：当前速度（m/s）*10（相当于10s的距离）
 void PurePursuit::calcLookaheadDistance(int waypoint)
 {
   double current_velocity_mps = current_velocity_.twist.linear.x;
@@ -86,6 +88,7 @@ void PurePursuit::calcLookaheadDistance(int waypoint)
 }
 
 //计算曲率：kappa
+//这个计算公式貌似和标准计算公式不同。
 double PurePursuit::calcCurvature(geometry_msgs::Point target) const
 {
   double kappa;
@@ -235,15 +238,20 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point 
 }
 
 //检验车是否跟随线路。
+//计算当前位置与路点1和路点2的直线距离，距离小于0.2
+//计算当前位置与路点1的相对角度，小于5
+//则视为跟踪状态，否则不在跟踪状态
+//问题：为什么是和路点1和路点2做比较，假设规划结束，当前位置与路点1最为接近。
 bool PurePursuit::verifyFollowing() const
 {
   double a = 0;
   double b = 0;
   double c = 0;
+  //参数a，b，c确定了过两个点（路点1和路点2）的一条直线L。
   getLinearEquation(current_waypoints_.getWaypointPosition(1), current_waypoints_.getWaypointPosition(2), &a, &b, &c);
-  //当前路点与过路点1和路点2直线的距离。
+  //当前位置到直线L的距离。
   double displacement = getDistanceBetweenLineAndPoint(current_pose_.pose.position, a, b, c);
-  //当前路点与过路点1的夹角。
+  //当前位置与过路点1的夹角。不明白两点之间的角度是怎么计算的。
   double relative_angle = getRelativeAngle(current_waypoints_.getWaypointPose(1), current_pose_.pose);
   //ROS_ERROR("side diff : %lf , angle diff : %lf",displacement,relative_angle);
   if (displacement < displacement_threshold_ && relative_angle < relative_angle_threshold_)
@@ -259,6 +267,8 @@ bool PurePursuit::verifyFollowing() const
 }
 
 //由曲率和速度值计算Twist。
+//没有跟踪上，角速度为线速度与曲率之积。
+//跟踪状态，角速度为上一个时刻角速度。
 geometry_msgs::Twist PurePursuit::calcTwist(double curvature, double cmd_velocity) const
 {
   // verify whether vehicle is following the path
@@ -282,8 +292,11 @@ geometry_msgs::Twist PurePursuit::calcTwist(double curvature, double cmd_velocit
 }
 
 //获取下一个路点的index：num_of_next_waypoint_，利用到了lookahead_distance_。
+//遍历轨迹，下一个路点：当前位置加上前视距离之后的第一个点。若当前是最后路点，下一路点设为最后路点。
+//若出错设置-1；
 void PurePursuit::getNextWaypoint()
 {
+  //获取路点数，也就是planning中的FLAGS_rtk_trajectory_forward。
   int path_size = static_cast<int>(current_waypoints_.getSize());
 
   // if waypoints are not given, do nothing.
@@ -297,6 +310,7 @@ void PurePursuit::getNextWaypoint()
   for (int i = 0; i < path_size; i++)
   {
     // if search waypoint is the last
+    //如果当前点是最后路点，则下一个路点设为最后路点。
     if (i == (path_size - 1))
     {
       ROS_INFO("search waypoint is the last");
@@ -305,6 +319,7 @@ void PurePursuit::getNextWaypoint()
     }
 
     // if there exists an effective waypoint
+    //如果当前位置与轨迹中的路点大于前视距离，则将这个路点设置下个路点。
     if (getPlaneDistance(current_waypoints_.getWaypointPosition(i), current_pose_.pose.position) > lookahead_distance_)
     {
       num_of_next_waypoint_ = i;
@@ -333,16 +348,19 @@ geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) con
 
   geometry_msgs::TwistStamped twist;
   twist.twist = t;
-  twist.header.stamp = ros::Time::now();
+  twist.header.stamp = ros::Time::now();    //这里使用当前时间作为消息时间。
 
   double v = t.linear.x;
   double omega = t.angular.z;
 
+  //只有纵向速度，直接返回纵向速度。
   if(fabs(omega) < ERROR){
 
     return twist;
   }
 
+  //有转速度，如果转速和线速之积超过常系数g_lateral_accel_limit，则线速设置g_lateral_accel_limit除转速，
+  //线速保持不变。这里不明白？？？
   double max_v = g_lateral_accel_limit / omega;
 
 
@@ -359,6 +377,7 @@ geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) con
 //由pose_set_，velocity_set_和waypoint_set_计算出cmd_vel（ros结构）。
 geometry_msgs::TwistStamped PurePursuit::go()
 {
+  //检查当前位置，当前速度，路点数据是否准备好。
   if(!pose_set_ || !waypoint_set_ || !velocity_set_){
     if(!pose_set_) {
        ROS_WARN("position is missing");
@@ -371,7 +390,7 @@ geometry_msgs::TwistStamped PurePursuit::go()
     }
     return outputZero();
   }
-  else{
+  else{   //add by yanqiao。如果不加，只有有一次，这里就会永远成立，不和逻辑。
       pose_set_ = false;
       waypoint_set_ = false;
       velocity_set_ = false;
@@ -379,9 +398,10 @@ geometry_msgs::TwistStamped PurePursuit::go()
 
   bool interpolate_flag = false;
 
-  
+  //设置了lookahead_distance_。
   calcLookaheadDistance(1);
   // search next waypoint
+  //设置了num_of_next_waypoint_
   getNextWaypoint();
   if (num_of_next_waypoint_ == -1)
   {
