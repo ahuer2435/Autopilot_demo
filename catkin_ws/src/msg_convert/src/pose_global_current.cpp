@@ -11,9 +11,11 @@ static void trajectort_convert_callback(const msg_convert::global_pose_vel& glob
     std::string zone;
     geometry_msgs::PoseStamped geo_pose;
 
+    geo_pose.header = global_pose_input.pose.header;
     geo_pose.pose.position.x = global_pose_input.pose.pose.position.x;
     geo_pose.pose.position.y = global_pose_input.pose.pose.position.y;
     geo_pose.pose.position.z = global_pose_input.pose.pose.position.z;
+    geo_pose.pose.orientation = global_pose_input.pose.pose.orientation;
     pub_current_pose.publish(geo_pose);
 }
 

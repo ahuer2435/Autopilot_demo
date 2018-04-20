@@ -1,3 +1,8 @@
+/*
+基于apollo1.0规划算法，根据车辆位置，规划行驶路线，至终点为止。
+*/
+
+
 #include<fstream>
 
 #include <ros/ros.h>
@@ -76,7 +81,7 @@ void ReadTrajectoryFile(const std::string& filename) {
   file_in.close();
 }
 
-
+//遍历路点，找到与起始点最近的路点，返回其index。
 size_t QueryPositionMatchedPoint(const Point_strut& start_point,const vector<Point_strut>& trajectory) {
   auto func_distance_square = [](const Point_strut& point, const double x,const double y) {
     double dx = point.x - x;
@@ -94,6 +99,7 @@ size_t QueryPositionMatchedPoint(const Point_strut& start_point,const vector<Poi
   }
   return index_min;
 }
+
 
 bool Plan(const Point_strut& start_point,std::vector<Point_strut>* ptr_discretized_trajectory) {
 

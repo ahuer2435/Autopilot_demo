@@ -10,6 +10,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <nmea_navsat_driver/Eulers.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <tf/transform_datatypes.h>
 
 ros::Publisher  pub_pose;
 
@@ -24,6 +25,7 @@ void callback(const geometry_msgs::PoseStampedConstPtr &pose_input, const Eulars
    global_pose_vel.pose = *pose_input;
    global_pose_vel.heading = *heading_input;
    global_pose_vel.vel = *vel_input;
+   global_pose_vel.pose.pose.orientation = tf::createQuaternionMsgFromYaw(global_pose_vel.heading.yaw);
    pub_pose.publish(global_pose_vel);
 
 }
