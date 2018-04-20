@@ -40,12 +40,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "vechie_cmd_to_can_message_node");
     ros::NodeHandle nh;
 
-    message_filters::Subscriber<dbw_mkz_msgs::SteeringCmd> gps_sub(nh, "vehicle/steering_cmd", 10);
-    message_filters::Subscriber<dbw_mkz_msgs::ThrottleCmd> heading_sub(nh, "vehicle/throttle_cmd", 10);
-    message_filters::Subscriber<dbw_mkz_msgs::BrakeCmd> vel_sub(nh, "vehicle/brake_cmd", 10);
+    message_filters::Subscriber<dbw_mkz_msgs::SteeringCmd> steering_sub(nh, "/vehicle/steering_cmd", 1);
+    message_filters::Subscriber<dbw_mkz_msgs::ThrottleCmd> throttle_sub(nh, "/vehicle/throttle_cmd", 1);
+    message_filters::Subscriber<dbw_mkz_msgs::BrakeCmd> brake_sub(nh, "/vehicle/brake_cmd", 1);
 
     typedef message_filters::sync_policies::ExactTime<dbw_mkz_msgs::SteeringCmd, dbw_mkz_msgs::ThrottleCmd, dbw_mkz_msgs::BrakeCmd> MySyncPolicy;
-    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), gps_sub, heading_sub, vel_sub);
+    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), steering_sub, throttle_sub, brake_sub);
     sync.registerCallback(boost::bind(&callback, _1, _2, _3));
 
     pub_vehicle_cmd = nh.advertise< msg_convert::vehicle_cmd >("vehicle_cmd", 2, true);
