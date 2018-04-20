@@ -106,7 +106,7 @@ void CanDataReceiveLoop(void)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "usbcan_send_node");
+    ros::init(argc, argv, "usbcan_node");
     ros::NodeHandle nh;
 
     gDevType = 16;
