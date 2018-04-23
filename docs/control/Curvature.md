@@ -7,4 +7,4 @@
 ## 示例：
 ![curvature example](../images/curvature_example.png)
 ## 两点之间的曲率计算公式：
-![两点之间的曲率公式](../images/两点之间的曲率公式.png)
+![curvature_formula_between_two_points](../images/curvature_formula_between_two_points.png)

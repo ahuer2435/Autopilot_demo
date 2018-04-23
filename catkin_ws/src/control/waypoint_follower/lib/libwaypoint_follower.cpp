@@ -116,6 +116,7 @@ double DecelerateVelocity(double distance, double prev_velocity)
 }
 
 // calculation relative coordinate of point from current_pose frame
+//将全局坐标系下的点point_msg转化为以车辆为坐标系(current_pose)的点坐标(tf_point_msg).
 geometry_msgs::Point calcRelativeCoordinate(geometry_msgs::Point point_msg, geometry_msgs::Pose current_pose)
 {
   tf::Transform inverse;
@@ -155,7 +156,7 @@ double getPlaneDistance(geometry_msgs::Point target1, geometry_msgs::Point targe
   return tf::tfDistance(v1, v2);
 }
 
-//两点之间的角度
+//两点之间的角度??
 double getRelativeAngle(geometry_msgs::Pose waypoint_pose, geometry_msgs::Pose vehicle_pose)
 {
   geometry_msgs::Point relative_p1 = calcRelativeCoordinate(waypoint_pose.position, vehicle_pose);

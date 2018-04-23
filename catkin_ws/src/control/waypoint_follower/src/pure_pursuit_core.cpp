@@ -89,6 +89,10 @@ void PurePursuit::calcLookaheadDistance(int waypoint)
 
 //计算曲率：kappa
 //这个计算公式貌似和标准计算公式不同。
+//曲率计算公式:R=L^2/(2*x),R 为曲率半径,其倒数为对应的曲率.参考论文:一种纯追踪模型改进算法和https://zh.wikipedia.org/zh-hans/%E6%9B%B2%E7%8E%87
+//L是车辆形式的圆弧的弦长,x是目标点在车辆坐标系下的横坐标.车辆坐标是以前向为y轴,右侧为x轴.圆弧的两点是车辆的当前位置和目标点的位置.
+//getPlaneDistance(target, current_pose_.pose.position)表示弦长L.
+//calcRelativeCoordinate(target, current_pose_.pose).y: 目标点target在车体坐标系下的横坐标,感觉应该是x,不是y
 double PurePursuit::calcCurvature(geometry_msgs::Point target) const
 {
   double kappa;
@@ -131,8 +135,11 @@ bool PurePursuit::interpolateNextTarget(int next_waypoint, geometry_msgs::Point 
   double b = 0;
   double c = 0;
   double get_linear_flag = getLinearEquation(start, end, &a, &b, &c);
-  if (!get_linear_flag)
+  if (!get_linear_flag){
+    ROS_ERROR("get Linear Equation failed.\n");
     return false;
+  }
+
 
   // let the center of circle be "(x0,y0)", in my code , the center of circle is vehicle position
   // the distance  "d" between the foot of a perpendicular line and the center of circle is ...
@@ -266,9 +273,10 @@ bool PurePursuit::verifyFollowing() const
   }
 }
 
-//由曲率和速度值计算Twist。
-//没有跟踪上，角速度为线速度与曲率之积。
-//跟踪状态，角速度为上一个时刻角速度。
+//由下一目标点的曲率和当前速度值计算Twist。
+//线速度是当前速度;角速度分情况:
+//1. 若跟踪上了,使用上一时刻的角速度.
+//2. 若没有跟踪上,实时计算角速度,计算公式:角速度w = 线速度v*曲率curvature.(原理是v=w*R,curvature = 1/R)
 geometry_msgs::Twist PurePursuit::calcTwist(double curvature, double cmd_velocity) const
 {
   // verify whether vehicle is following the path
@@ -341,6 +349,8 @@ geometry_msgs::TwistStamped PurePursuit::outputZero() const
   twist.header.stamp = ros::Time::now();
   return twist;
 }
+
+//不明白这里对线速度的处理.
 geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) const
 {
   double g_lateral_accel_limit = 5.0;
@@ -361,7 +371,7 @@ geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) con
 
   //有转速度，如果转速和线速之积超过常系数g_lateral_accel_limit，则线速设置g_lateral_accel_limit除转速，
   //线速保持不变。这里不明白？？？
-  double max_v = g_lateral_accel_limit / omega;
+  double max_v = fabs(g_lateral_accel_limit / omega);  //参考:https://github.com/udacity/CarND-Capstone/issues/113
 
 
   double a = v * omega;
@@ -419,6 +429,7 @@ geometry_msgs::TwistStamped PurePursuit::go()
   }
 
   // linear interpolation and calculate angular velocity
+  //不太明白线性插值的效果,由下一个目标点的id计算下一个目标点的位置,使用线性插值,就不是直接由id获取相应的位置了.
   interpolate_flag = interpolateNextTarget(num_of_next_waypoint_, &position_of_next_target_);
 
   if (!interpolate_flag)
