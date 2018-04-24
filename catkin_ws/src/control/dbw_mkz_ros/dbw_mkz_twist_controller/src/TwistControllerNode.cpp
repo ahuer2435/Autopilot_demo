@@ -163,6 +163,7 @@ void TwistControllerNode::reconfig(ControllerConfig& config, uint32_t level)
   lpf_accel_.setParams(cfg_.accel_tau, 0.02);
 }
 
+//更新cmd_vel_,这三个应该只有一个是有效的.
 void TwistControllerNode::recvTwist(const geometry_msgs::Twist::ConstPtr& msg)
 {
   cmd_vel_.twist = *msg;
@@ -171,12 +172,14 @@ void TwistControllerNode::recvTwist(const geometry_msgs::Twist::ConstPtr& msg)
   cmd_stamp_ = ros::Time::now();
 }
 
+//更新cmd_vel_
 void TwistControllerNode::recvTwist2(const dbw_mkz_msgs::TwistCmd::ConstPtr& msg)
 {
   cmd_vel_ = *msg;
   cmd_stamp_ = ros::Time::now();
 }
 
+//更新cmd_vel_
 void TwistControllerNode::recvTwist3(const geometry_msgs::TwistStamped::ConstPtr& msg)
 {
   cmd_vel_.twist = msg->twist;
@@ -202,11 +205,13 @@ void TwistControllerNode::recvSteeringReport(const dbw_mkz_msgs::SteeringReport:
   actual_.linear.x = msg->speed;
 }
 
+//从imu获取角速度,设置actual_
 void TwistControllerNode::recvImu(const sensor_msgs::Imu::ConstPtr& msg)
 {
   actual_.angular.z = msg->angular_velocity.z;
 }
 
+//设置控制使能开关:sys_enable_
 void TwistControllerNode::recvEnable(const std_msgs::Bool::ConstPtr& msg)
 {
   sys_enable_ = msg->data;

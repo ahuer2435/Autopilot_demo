@@ -50,16 +50,23 @@ public:
       kp_ = kp; ki_ = ki; kd_ = kd; min_ = std::min(min,max); max_ = std::max(min,max);
     }
 
+    //设置增益三大系数.
     void setGains(double kp, double ki, double kd) { kp_ = kp; ki_ = ki; kd_ = kd; }
+    //设置区间,最大值和最小值.
     void setRange(double min, double max) { min_ = std::min(min,max); max_ = std::max(min,max); }
+    //设置参数,包含setGains和setRange.
     void setParams(double kp, double ki, double kd, double min, double max) { setGains(kp,ki,kd); setRange(min,max); }
+    //reset Integrator积分器,设为0
     void resetIntegrator() { int_val_ = 0.0; last_int_val_ = 0.0; }
+    //恢复Integrator积分器,设为last_int_val_
     void revertIntegrator() { int_val_ = last_int_val_; }
 
     double step(double error, double sample_time) {
       last_int_val_ = int_val_;
 
+      //积分
       double integral = int_val_ + error * sample_time;
+      //导数
       double derivative = (error - last_error_) / sample_time;
 
       double y = kp_ * error + ki_ * int_val_ + kd_ * derivative;

@@ -351,6 +351,7 @@ geometry_msgs::TwistStamped PurePursuit::outputZero() const
 }
 
 //不明白这里对线速度的处理.
+//参考:Autoware/ros/src/computing/planning/motion/packages/waypoint_follower/nodes/twist_filter,似乎是滤波功能
 geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) const
 {
   double g_lateral_accel_limit = 5.0;
@@ -400,11 +401,6 @@ geometry_msgs::TwistStamped PurePursuit::go()
     }
     return outputZero();
   }
-  else{   //add by yanqiao。如果不加，只有有一次，这里就会永远成立，不和逻辑。
-      pose_set_ = false;
-      waypoint_set_ = false;
-      velocity_set_ = false;
-  }
 
   bool interpolate_flag = false;
 
@@ -450,5 +446,10 @@ geometry_msgs::TwistStamped PurePursuit::go()
       << _current_waypoints.getWaypointPosition(next_waypoint).y << " " << next_target.x << " " << next_target.y
       << std::endl;
 #endif
+  //add by yanqiao。如果不加，只有有一次，这里就会永远成立，不和逻辑。
+  pose_set_ = false;
+  waypoint_set_ = false;
+  velocity_set_ = false;
+
 }
 }
