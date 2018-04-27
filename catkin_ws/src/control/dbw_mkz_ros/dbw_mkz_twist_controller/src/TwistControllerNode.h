@@ -111,6 +111,8 @@ private:
   double steering_ratio_;
 
   static const double GAS_DENSITY = 2.858; // kg/gal
+  //mph: 英里每小时; mps:米每秒
+  //1英里=1609.344米
   static double mphToMps(double mph) { return mph * 0.44704; }
 };
 

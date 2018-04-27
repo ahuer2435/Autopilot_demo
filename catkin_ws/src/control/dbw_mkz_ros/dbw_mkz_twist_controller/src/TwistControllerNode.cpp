@@ -89,24 +89,30 @@ void TwistControllerNode::controlCallback(const ros::TimerEvent& event)
     return;
   }
 
+  //计算车辆的实时质量,但是公式感觉有问题,应该是cfg_.vehicle_mass + lpf_fuel_.get() * GAS_DENSITY
   double vehicle_mass = cfg_.vehicle_mass + lpf_fuel_.get() / 100.0 * cfg_.fuel_capacity * GAS_DENSITY;
+  //vel_error是期望线速度与实时线速度之差值.
   double vel_error = cmd_vel_.twist.linear.x - actual_.linear.x;
   if ((fabs(cmd_vel_.twist.linear.x) < mphToMps(1.0)) || !cfg_.pub_pedals) {
     speed_pid_.resetIntegrator();
   }
 
+  //设置速度范围.
   speed_pid_.setRange(
       -std::min(fabs(cmd_vel_.decel_limit) > 0.0 ? fabs(cmd_vel_.decel_limit) : 9.8,
                 cfg_.decel_max > 0.0 ? cfg_.decel_max : 9.8),
        std::min(fabs(cmd_vel_.accel_limit) > 0.0 ? fabs(cmd_vel_.accel_limit) : 9.8,
                 cfg_.accel_max > 0.0 ? cfg_.accel_max : 9.8)
   );
+
+  //这里的时间control_period_没有用上,计算了速度差值,似乎不能得到加速度,差值*比例系数,感觉这应该是要降低为0的数
   double accel_cmd = speed_pid_.step(vel_error, control_period_);
 
   if (cmd_vel_.twist.linear.x <= (double)1e-2) {
     accel_cmd = std::min(accel_cmd, -530 / vehicle_mass / cfg_.wheel_radius);
   } 
 
+  //发布pid之后的速度,调试使用.
   std_msgs::Float64 accel_cmd_msg;
   accel_cmd_msg.data = accel_cmd;
   pub_req_accel_.publish(accel_cmd_msg);
@@ -151,19 +157,26 @@ void TwistControllerNode::controlCallback(const ros::TimerEvent& event)
   }
 }
 
+//设置参数.
 void TwistControllerNode::reconfig(ControllerConfig& config, uint32_t level)
 {
   cfg_ = config;
+  //车的质量=车的质量-燃料容量*燃料密度.
   cfg_.vehicle_mass -= cfg_.fuel_capacity * GAS_DENSITY; // Subtract weight of full gas tank
+  //车的质量=车的质量+150(假设人的体重是150kg)
   cfg_.vehicle_mass += 150.0; // Account for some passengers
 
+  //设置外速度控制回路参数:比例增益ki,积分增益kp和微分增益kd为0
   speed_pid_.setGains(cfg_.speed_kp, 0.0, 0.0);
+  //设置内速度控制回路参数比例增益ki和积分增益kp,微分增益kd为0
   accel_pid_.setGains(cfg_.accel_kp, cfg_.accel_ki, 0.0);
+  //设置最大横向角速度.
   yaw_control_.setLateralAccelMax(cfg_.max_lat_accel);
+  //设置滤波时间和采样频率,这样就确定了滤波系数.
   lpf_accel_.setParams(cfg_.accel_tau, 0.02);
 }
 
-//更新cmd_vel_,这三个应该只有一个是有效的.
+//更新理想速度cmd_vel_,这三个应该只有一个是有效的.
 void TwistControllerNode::recvTwist(const geometry_msgs::Twist::ConstPtr& msg)
 {
   cmd_vel_.twist = *msg;
@@ -172,14 +185,14 @@ void TwistControllerNode::recvTwist(const geometry_msgs::Twist::ConstPtr& msg)
   cmd_stamp_ = ros::Time::now();
 }
 
-//更新cmd_vel_
+//更新理想速度cmd_vel_
 void TwistControllerNode::recvTwist2(const dbw_mkz_msgs::TwistCmd::ConstPtr& msg)
 {
   cmd_vel_ = *msg;
   cmd_stamp_ = ros::Time::now();
 }
 
-//更新cmd_vel_
+//更新理想速度cmd_vel_
 void TwistControllerNode::recvTwist3(const geometry_msgs::TwistStamped::ConstPtr& msg)
 {
   cmd_vel_.twist = msg->twist;
@@ -188,11 +201,13 @@ void TwistControllerNode::recvTwist3(const geometry_msgs::TwistStamped::ConstPtr
   cmd_stamp_ = ros::Time::now();
 }
 
+//对燃料级别进行滤波.
 void TwistControllerNode::recvFuel(const dbw_mkz_msgs::FuelLevelReport::ConstPtr& msg)
 {
   lpf_fuel_.filt(msg->fuel_level);
 }
 
+//采样速度msg->speed设置actual_.linear.x,这里对两次速度的差值,先放大50倍,在进行低通滤波.
 void TwistControllerNode::recvSteeringReport(const dbw_mkz_msgs::SteeringReport::ConstPtr& msg)
 {
   double raw_accel = 50.0 * (msg->speed - actual_.linear.x);
