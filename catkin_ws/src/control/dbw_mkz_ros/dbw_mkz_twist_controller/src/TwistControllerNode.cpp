@@ -122,6 +122,7 @@ void TwistControllerNode::controlCallback(const ros::TimerEvent& event)
     dbw_mkz_msgs::BrakeCmd brake_cmd;
     dbw_mkz_msgs::SteeringCmd steering_cmd;
 
+    //accel_cmd是当前线速度与期望速度差值乘以比例系数,lpf_accel_.get()是当前速度与上次测量速度差值乘以50,经过低通滤波
     throttle_cmd.enable = true;
     throttle_cmd.pedal_cmd_type = dbw_mkz_msgs::ThrottleCmd::CMD_PERCENT;
     if (accel_cmd >= 0) {

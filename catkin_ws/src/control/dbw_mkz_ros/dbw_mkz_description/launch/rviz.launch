@@ -2,6 +2,6 @@
 <launch>
 
   <!-- RViz -->
-  <node pkg="rviz" type="rviz" name="rviz_dbw" respawn="false" output="screen" args="-d $(find dbw_mkz_description)/launch/rviz.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz_dbw" respawn="false" output="screen" args="-d $(find dbw_mkz_description)/launch/vechile.rviz" />
 
 </launch>
