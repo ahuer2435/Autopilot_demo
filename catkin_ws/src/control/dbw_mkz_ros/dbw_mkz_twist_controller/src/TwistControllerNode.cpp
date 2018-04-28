@@ -141,6 +141,7 @@ void TwistControllerNode::controlCallback(const ros::TimerEvent& event)
     }
 
     steering_cmd.enable = true;
+    //getSteeringWheelAngle参数:期望线速度,期望角速度,实际线速度.
     steering_cmd.steering_wheel_angle_cmd = yaw_control_.getSteeringWheelAngle(cmd_vel_.twist.linear.x, cmd_vel_.twist.angular.z, actual_.linear.x)
         + cfg_.steer_kp * (cmd_vel_.twist.angular.z - actual_.angular.z);
 

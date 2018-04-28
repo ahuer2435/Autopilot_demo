@@ -44,17 +44,24 @@ public:
   YawControl() : lateral_accel_max_(INFINITY), steering_wheel_angle_max_(8.2), steering_ratio_(1.0), wheelbase_(1.0) {}
   YawControl(double wheelbase, double steering_ratio, double steering_wheel_angle_max = INFINITY, double lateral_accel_max = INFINITY) :
     lateral_accel_max_(fabs(lateral_accel_max)), steering_wheel_angle_max_(steering_wheel_angle_max), steering_ratio_(steering_ratio), wheelbase_(wheelbase) {}
-  void setWheelBase(double val) { wheelbase_ = val; }
-  void setSteeringRatio(double val) { steering_ratio_ = val; }
-  void setLateralAccelMax(double val) { lateral_accel_max_ = fabs(val); }
-  double getSteeringWheelAngle(double cmd_vx, double cmd_wz, double speed) {
+  void setWheelBase(double val) { wheelbase_ = val; }   //轴距:纵向轮距
+  void setSteeringRatio(double val) { steering_ratio_ = val; }  //转向比: 方向盘转动角度与车轮相应转动的角度之比
+  void setLateralAccelMax(double val) { lateral_accel_max_ = fabs(val); }   //最大侧向加速度
+  double getSteeringWheelAngle(double cmd_vx, double cmd_wz, double speed)
+  {
     double steering_wheel_angle;
-    if (fabsf(speed) > 0.5) { // When moving, use measured speed to compute steering angle to improve accuracy
+    if (fabsf(speed) > 0.5)
+    { // When moving, use measured speed to compute steering angle to improve accuracy
       steering_wheel_angle = steering_ratio_ * atan(wheelbase_ * cmd_wz / speed);
-    } else { // Use commanded speed to control radius at measured speeds below 0.5 m/s
-      if (fabsf(cmd_vx) > 0.1) {
+    }
+    else
+    { // Use commanded speed to control radius at measured speeds below 0.5 m/s
+      if (fabsf(cmd_vx) > 0.1)
+      {
         steering_wheel_angle = steering_ratio_ * atan(wheelbase_ * cmd_wz / cmd_vx);
-      } else {
+      }
+      else
+      {
         // Hits here if both measured speed and commanded speed are small;
         // set steering to zero to avoid large changes in steering command
         // due to dividing by small numbers.

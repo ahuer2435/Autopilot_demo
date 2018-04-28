@@ -1,5 +1,5 @@
 #! /bin/bash
-roscore&
+#roscore&
 sleep 3s
 roslaunch nmea_navsat_driver gps_driver.launch& 
 sleep 2s
