@@ -21,10 +21,10 @@ static void trajectort_convert_callback(const msg_convert::global_pose_vel& glob
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "pose_global_current_node");
+    ros::init(argc, argv, "current_pose_node");
     ros::NodeHandle nh;
 
-    ros::Subscriber sub_global_pose = nh.subscribe("global_pose_vel", 10, trajectort_convert_callback);
+    ros::Subscriber sub_global_pose = nh.subscribe("pose_heading_vel", 10, trajectort_convert_callback);
     pub_current_pose = nh.advertise<geometry_msgs::PoseStamped>("current_pose", 2, true);
 
     ros::spin();

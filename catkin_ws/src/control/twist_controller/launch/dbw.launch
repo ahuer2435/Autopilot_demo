@@ -13,5 +13,6 @@
         <param name="max_steer_angle" value="8." />
         <param name="max_throttle_percentage" value="0.025" />
         <param name="max_braking_percentage" value="-0.025" />
+        <remap from="twist_cmd" to="vehicle/cmd_vel_stamped"/>
     </node>
 </launch>
