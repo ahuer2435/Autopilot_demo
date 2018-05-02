@@ -31,6 +31,23 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
+/*********************************************************************
+* Yaw控制器:
+* 功能:
+  ** 根据实际线速度或者期望线速度和期望角速度控制方向盘转向角度.
+* 参数:
+  ** lateral_accel_max_: 横向加速最大值.
+  ** steering_wheel_angle_max_: 最大转向角度.
+  ** steering_ratio_: 转向比.
+  ** wheelbase_: 轴距.
+  ** cmd_vx: 期望线速度.
+  ** cmd_wz: 期望角速度.
+  ** speed:　实际线速度．
+　　** steering_wheel_angle: 转向角．
+* 说明：
+　　** 转向角的计算来源于自行车运动学模型
+  ** 与文档不一致的地方是转向角的计算参考了期望速度,在实际速度小于0.5,且期望速度大于0.1时.
+**********************************************************************/
 
 #ifndef YAWCONTROL_H
 #define YAWCONTROL_H
