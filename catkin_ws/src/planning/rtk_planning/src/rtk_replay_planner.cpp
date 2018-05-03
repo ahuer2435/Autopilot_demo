@@ -188,8 +188,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rtk_replay_planner_node");
     ros::NodeHandle nh;
     ReadTrajectoryFile(FILE_NAME);
-    ros::Subscriber sub_gps = nh.subscribe("pose_heading_vel", 10, plan_callback);
-    pub_trajectory = nh.advertise<styx_msgs::Lane>("final_waypoints", 2);
+    ros::Subscriber sub_gps = nh.subscribe("msg_convert/pose_heading_vel", 10, plan_callback);
+    pub_trajectory = nh.advertise<styx_msgs::Lane>("planning/final_waypoints", 2);
     ros::spin();
 
     return 0;

@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), gps_sub, heading_sub, vel_sub);
     sync.registerCallback(boost::bind(&callback, _1, _2, _3));
 
-    pub_pose = nh.advertise< msg_convert::global_pose_vel >("pose_heading_vel", 2);
+    pub_pose = nh.advertise< msg_convert::global_pose_vel >("msg_convert/pose_heading_vel", 2);
     ros::spin();
 
     return 0;

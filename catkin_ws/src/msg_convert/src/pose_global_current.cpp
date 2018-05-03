@@ -24,8 +24,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "current_pose_node");
     ros::NodeHandle nh;
 
-    ros::Subscriber sub_global_pose = nh.subscribe("pose_heading_vel", 10, trajectort_convert_callback);
-    pub_current_pose = nh.advertise<geometry_msgs::PoseStamped>("current_pose", 2, true);
+    ros::Subscriber sub_global_pose = nh.subscribe("msg_convert/pose_heading_vel", 10, trajectort_convert_callback);
+    pub_current_pose = nh.advertise<geometry_msgs::PoseStamped>("msg_convert/current_pose", 2, true);
 
     ros::spin();
     return 0;

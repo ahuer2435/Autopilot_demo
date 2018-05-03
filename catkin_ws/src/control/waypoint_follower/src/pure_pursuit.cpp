@@ -55,9 +55,9 @@ int main(int argc, char **argv)
   // subscribe topic
   //第四个参数是一个对象引用，此形式第三个参数回调函数需要时此类的公有成员函数。
   ros::Subscriber waypoint_subscriber =
-      nh.subscribe("final_waypoints", 10, &waypoint_follower::PurePursuit::callbackFromWayPoints, &pp);
+      nh.subscribe("planning/final_waypoints", 10, &waypoint_follower::PurePursuit::callbackFromWayPoints, &pp);
   ros::Subscriber ndt_subscriber =
-      nh.subscribe("current_pose", 10, &waypoint_follower::PurePursuit::callbackFromCurrentPose, &pp);
+      nh.subscribe("msg_convert/current_pose", 10, &waypoint_follower::PurePursuit::callbackFromCurrentPose, &pp);
   ros::Subscriber est_twist_subscriber =
       nh.subscribe("current_velocity", 10, &waypoint_follower::PurePursuit::callbackFromCurrentVelocity, &pp);
 

@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rtk_record_node");
     ros::NodeHandle nh;
 
-    ros::Subscriber sub_gps = nh.subscribe("pose_heading_vel", 10, global_pose_vel_callback);
+    ros::Subscriber sub_gps = nh.subscribe("msg_convert/pose_heading_vel", 10, global_pose_vel_callback);
     outfile.open(FILE_NAME);
     outfile << "x," << "y," << "z," << "yaw," \
             << "line_x,"  << "line_y," << "line_z," \
