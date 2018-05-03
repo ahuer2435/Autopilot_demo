@@ -12,7 +12,7 @@ static void gps_callback(const sensor_msgs::NavSatFix& global_pose)
     std::string zone;
     LLtoUTM(global_pose.latitude,global_pose.longitude,northing,easting,zone);
 
-    pose.header.frame_id = global_pose.header.frame_id;
+    pose.header.frame_id = "/utm";
     pose.header.stamp = global_pose.header.stamp;
     pose.pose.position.x = easting;
     pose.pose.position.y = northing;

@@ -172,6 +172,7 @@ static void plan_callback(const msg_convert::global_pose_vel& global_pose_input)
 
     for(int i = 0; i < curr_discretized_trajectory.size();i++){
         styx_msgs::Waypoint way_point;
+        way_point.pose.header.frame_id = global_pose_input.header.frame_id;
         way_point.pose.pose.position.x = curr_discretized_trajectory[i].x;
         way_point.pose.pose.position.y = curr_discretized_trajectory[i].y;
         way_point.pose.pose.position.z = curr_discretized_trajectory[i].z;
