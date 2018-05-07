@@ -90,7 +90,7 @@ void PurePursuit::calcLookaheadDistance(int waypoint)
 //计算曲率：kappa
 //这个计算公式貌似和标准计算公式不同。
 //曲率计算公式:R=L^2/(2*x),R 为曲率半径,其倒数为对应的曲率.参考论文:一种纯追踪模型改进算法和https://zh.wikipedia.org/zh-hans/%E6%9B%B2%E7%8E%87
-//L是车辆形式的圆弧的弦长,x是目标点在车辆坐标系下的横坐标.车辆坐标是以前向为y轴,右侧为x轴.圆弧的两点是车辆的当前位置和目标点的位置.
+//L是车辆行驶的圆弧的弦长,x是目标点在车辆坐标系下的横坐标.车辆坐标是以前向为y轴,右侧为x轴.圆弧的两点是车辆的当前位置和目标点的位置.
 //getPlaneDistance(target, current_pose_.pose.position)表示弦长L.
 //calcRelativeCoordinate(target, current_pose_.pose).y: 目标点target在车体坐标系下的横坐标,感觉应该是x,不是y
 double PurePursuit::calcCurvature(geometry_msgs::Point target) const
