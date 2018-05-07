@@ -21,6 +21,7 @@
 * 轨迹包含了位置和速度信息
 
 ## 算法框架:
+![waypoint_follow_arch](../images/waypoint_follow_arch.bmp)
 ### 计算预瞄距离lookahead_distance_:
 * 输入:当前线速度,预瞄系数.
 * 输出:预瞄距离.
