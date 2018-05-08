@@ -106,6 +106,7 @@ void TwistControllerNode::controlCallback(const ros::TimerEvent& event)
   );
 
   //这里的时间control_period_没有用上,计算了速度差值,似乎不能得到加速度,差值*比例系数,感觉这应该是要降低为0的数
+  //此为timer的回调函数,周期即是control_period_,这个差值是每control_period_计算一次,所以速度的差值也可以看成加速度,时间是control_period_
   double accel_cmd = speed_pid_.step(vel_error, control_period_);
 
   if (cmd_vel_.twist.linear.x <= (double)1e-2) {
@@ -204,6 +205,7 @@ void TwistControllerNode::recvTwist3(const geometry_msgs::TwistStamped::ConstPtr
 }
 
 //对燃料级别进行滤波.
+//低通滤波器第一次调用filt时,其数值应该比较重要,如果和实际值差别较大,其收敛时间比较旧.
 void TwistControllerNode::recvFuel(const dbw_mkz_msgs::FuelLevelReport::ConstPtr& msg)
 {
   lpf_fuel_.filt(msg->fuel_level);
