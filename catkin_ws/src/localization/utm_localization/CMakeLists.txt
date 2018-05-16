@@ -13,6 +13,16 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(Eigen3)
+set(EIGEN_PACKAGE EIGEN3)
+if(NOT EIGEN3_FOUND)
+  find_package(cmake_modules REQUIRED)
+  find_package(Eigen REQUIRED)
+  set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
+  set(EIGEN3_LIBRARIES ${EIGEN_LIBRARIES})
+  set(EIGEN_PACKAGE Eigen)
+endif()
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -106,7 +116,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES utm_localization
 #  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+   DEPENDS ${EIGEN_PACKAGE}
 )
 
 ###########
@@ -118,6 +128,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -150,9 +161,13 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(nmea2tfpose_node src/nmea2tfpose_node.cpp src/nmea2tfpose_core.cpp)
-add_dependencies(nmea2tfpose_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(nmea2tfpose_node ${catkin_LIBRARIES} )
+#add_executable(nmea2tfpose_node src/nmea2tfpose_node.cpp src/nmea2tfpose_core.cpp)
+#add_dependencies(nmea2tfpose_node ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(nmea2tfpose_node ${catkin_LIBRARIES} )
+
+add_executable(gps2utm_node src/gps2utm.cpp)
+add_dependencies(gps2utm_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(gps2utm_node ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 
 #############
 ## Install ##

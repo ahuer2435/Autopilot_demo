@@ -42,6 +42,7 @@
 #include <tf/transform_broadcaster.h>
 
 #include "geo_pos_conv.hh"
+#include "gps_to_utm.h"
 
 namespace gnss_localizer
 {

@@ -160,6 +160,7 @@ void Nmea2TFPoseNode::convert(std::vector<std::string> nmea, ros::Time current_s
 }
 
 //根据收到的新旧数据对比,判断是否手工更新朝向.
+
 void Nmea2TFPoseNode::callbackFromNmeaSentence(const nmea_msgs::Sentence::ConstPtr &msg)
 {
   current_time_ = msg->header.stamp;
