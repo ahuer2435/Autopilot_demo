@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(utm_localization)
+project(learning_tf2)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -10,20 +10,9 @@ project(utm_localization)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  std_msgs
   tf2
   tf2_ros
 )
-
-find_package(Eigen3)
-set(EIGEN_PACKAGE EIGEN3)
-if(NOT EIGEN3_FOUND)
-  find_package(cmake_modules REQUIRED)
-  find_package(Eigen REQUIRED)
-  set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
-  set(EIGEN3_LIBRARIES ${EIGEN_LIBRARIES})
-  set(EIGEN_PACKAGE Eigen)
-endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -82,7 +71,7 @@ endif()
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   std_msgs  # Or other packages containing msgs
 # )
 
 ################################################
@@ -116,9 +105,9 @@ endif()
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES utm_localization
-  CATKIN_DEPENDS   tf2  tf2_ros
-   DEPENDS ${EIGEN_PACKAGE}
+#  LIBRARIES learning_tf2
+#  CATKIN_DEPENDS roscpp rospy tf2 tf2_ros
+#  DEPENDS system_lib
 )
 
 ###########
@@ -130,12 +119,11 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/utm_localization.cpp
+#   src/${PROJECT_NAME}/learning_tf2.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -146,7 +134,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/utm_localization_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/learning_tf2_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -163,13 +151,8 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-#add_executable(nmea2tfpose_node src/nmea2tfpose_node.cpp src/nmea2tfpose_core.cpp)
-#add_dependencies(nmea2tfpose_node ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(nmea2tfpose_node ${catkin_LIBRARIES} )
-
-add_executable(gps2utm_node src/gps2utm.cpp)
-add_dependencies(gps2utm_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(gps2utm_node ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
+add_executable(turtle_tf2_broadcaster src/turtle_tf2_broadcaster.cpp)
+target_link_libraries(turtle_tf2_broadcaster ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -211,7 +194,7 @@ target_link_libraries(gps2utm_node ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_utm_localization.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_learning_tf2.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
