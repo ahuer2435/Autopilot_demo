@@ -15,6 +15,7 @@ sleep 2s
 rosrun msg_convert vechie_cmd_to_can_message_node&
 #rosrun usbcan_driver usbcan_node&
 
+rosrun tf static_transform_publisher 0 0 0 0 0 1  gps base_footprint 20
 
 while [ true ]; do
 	sleep 30s
