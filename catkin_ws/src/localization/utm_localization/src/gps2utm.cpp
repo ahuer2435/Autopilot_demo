@@ -24,7 +24,7 @@ utm_data curr_utm;
 utm_data last_utm;
 double yaw, roll, pitch;
 
-std::string MAP_FRAME_ = "utm";
+std::string MAP_FRAME_ = "world";
 std::string GPS_FRAME_ = "gps";
 
 double utm_x_orign = 0;
