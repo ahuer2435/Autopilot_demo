@@ -2,7 +2,7 @@
 ## 功能:
 根据路径规划给出的轨迹,当前位置和当前速度,进行速度规划.作为后续运动控制模块的输入.
 ## 架构图:
-![pure_pursuit](../images/pure_pursuit.png)
+![pure_pursuit](./images/pure_pursuit.png)
 ### 输入:
 * /planning/final_waypoints  [styx_msgs/Lane]: 路径规划模块输出的轨迹.
 * /msg_convert/current_pose [geometry_msgs/PoseStamped]: 定位模块输出的当前位置.
@@ -21,7 +21,7 @@
 * 轨迹包含了位置和速度信息
 
 ## 算法框架:
-![waypoint_follow_arch](../images/waypoint_follow_arch.bmp)
+![waypoint_follow_arch](./images/waypoint_follow_arch.bmp)
 ### 计算预瞄距离lookahead_distance_:
 * 输入:当前线速度,预瞄系数.
 * 输出:预瞄距离.

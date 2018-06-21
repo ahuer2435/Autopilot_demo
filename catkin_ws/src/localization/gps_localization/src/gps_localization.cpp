@@ -9,6 +9,8 @@
 #include <Eigen/Dense>
 #include "gps_to_utm.h"
 
+#include "gps_localization/ros_filter_utilities.h"
+
 Eigen::MatrixXd latest_utm_covariance_;
 tf2::Transform latest_utm_pose_;
 tf2::Transform transform_gps2utm_pose_;
@@ -16,7 +18,7 @@ tf2::Transform transform_gps2world_pose_;
 tf2::Transform transform_utm_pose_;
 tf2::Transform utm_world_transform_;
 tf2::Transform utm_world_trans_inverse_;
-ros::Duration transform_timeout_;
+ros::Duration transform_timeout_ = ros::Duration(5);
 bool transform_good_ = false;
 bool last_utm_ready = false;
 bool gps_updated_ = false;
@@ -86,6 +88,46 @@ void Gps2WorldTransform(const sensor_msgs::NavSatFixConstPtr& msg)
   ROS_INFO_STREAM("has_transform_world_ " << has_transform_world_);
 }
 
+void getRobotOriginWorldPose(const tf2::Transform &gps_odom_pose,tf2::Transform &robot_odom_pose, const ros::Time &transform_time)
+{
+    robot_odom_pose.setIdentity();
+
+    // Remove the offset from base_link
+    tf2::Transform gps_offset_rotated;
+    tf2_ros::Buffer tf_buffer_;
+
+    bool can_transform = RosFilterUtilities::lookupTransformSafe(tf_buffer_,base_link_frame_id_,gps_frame_id_,
+                                                                 transform_time,transform_timeout_,gps_offset_rotated);
+    ROS_INFO("base_link->gps can_transform %d.\n", can_transform);
+
+    if (can_transform)
+    {
+      tf2::Transform robot_orientation;
+      can_transform = RosFilterUtilities::lookupTransformSafe(tf_buffer_,world_frame_id_,base_link_frame_id_,
+                                                              transform_time,transform_timeout_,robot_orientation);
+      ROS_INFO("world->base_link can_transform %d.\n",can_transform);
+
+      if (can_transform)
+      {
+        // Zero out rotation because we don't care about the orientation of the
+        // GPS receiver relative to base_link
+        gps_offset_rotated.setOrigin(tf2::quatRotate(robot_orientation.getRotation(), gps_offset_rotated.getOrigin()));
+        gps_offset_rotated.setRotation(tf2::Quaternion::getIdentity());
+        robot_odom_pose = gps_offset_rotated.inverse() * gps_odom_pose;
+      }
+      else
+      {
+        ROS_WARN_STREAM_THROTTLE(5.0, "Could not obtain " << world_frame_id_ << "->" << base_link_frame_id_ <<
+          " transform. Will not remove offset of navsat device from robot's origin.");
+      }
+    }
+    else
+    {
+        ROS_WARN_STREAM_THROTTLE(5.0, "Could not obtain " << base_link_frame_id_ << "->" << gps_frame_id_ <<" transform. Will not remove offset of navsat device from robot's origin.");
+    }
+  }
+
+
 void publishTF()
 {
     if (has_transform_utm_ && has_transform_world_)
@@ -107,18 +149,16 @@ void publishTF()
         //transform_gps2utm_pose_ 保存的是gps坐标系在utm坐标系下的位置
         //utm_world_transform_保存的是utm坐标系在world坐标系下的位置
         utm_world_transform_.mult(transform_gps2world_pose_, utm_pose_with_orientation.inverse());
-
         //world坐标系在utm坐标系下的位置.
         utm_world_trans_inverse_ = utm_world_transform_.inverse();
-
         transform_good_ = true;
 
         // 发布tf,utm与world_frame_id_之间的变换.
         static tf2_ros::TransformBroadcaster utm_world_broadcaster_;
         geometry_msgs::TransformStamped utm_world_transform_stamped;
 
-        static tf2_ros::TransformBroadcaster world_gps_broadcaster_;
-        geometry_msgs::TransformStamped world_gps_transform_stamped;
+        static tf2_ros::TransformBroadcaster world_baselink_broadcaster_;
+        geometry_msgs::TransformStamped world_baselink_transform_stamped;
 
         tf2::Transform transformed_world_gps;
 
@@ -128,19 +168,22 @@ void publishTF()
         //因为latest_utm_pose_中只有位置，没有朝向，所以设置朝向
         transformed_world_gps.setRotation(tf2::Quaternion::getIdentity());
 
-        utm_world_transform_stamped.header.stamp = ros::Time::now();
+        tf2::Transform transformed_world_robot;
+        getRobotOriginWorldPose(transformed_world_gps, transformed_world_robot, gps_update_time_);
+
+        utm_world_transform_stamped.header.stamp = gps_update_time_;    //ros::Time::now();
         utm_world_transform_stamped.header.frame_id = "utm";
         utm_world_transform_stamped.child_frame_id = world_frame_id_;
         utm_world_transform_stamped.transform = tf2::toMsg(utm_world_trans_inverse_);
         utm_world_transform_stamped.transform.translation.z = 0.0;
         utm_world_broadcaster_.sendTransform(utm_world_transform_stamped);
 
-        world_gps_transform_stamped.header.stamp = utm_world_transform_stamped.header.stamp;
-        world_gps_transform_stamped.header.frame_id = world_frame_id_;
-        world_gps_transform_stamped.child_frame_id = gps_frame_id_;
-        world_gps_transform_stamped.transform = tf2::toMsg(transformed_world_gps);
-        world_gps_transform_stamped.transform.translation.z = 0.0;
-        world_gps_broadcaster_.sendTransform(world_gps_transform_stamped);
+        world_baselink_transform_stamped.header.stamp = utm_world_transform_stamped.header.stamp;
+        world_baselink_transform_stamped.header.frame_id = world_frame_id_;
+        world_baselink_transform_stamped.child_frame_id = base_link_frame_id_;
+        world_baselink_transform_stamped.transform = tf2::toMsg(transformed_world_robot);
+        world_baselink_transform_stamped.transform.translation.z = 0.0;
+        world_baselink_broadcaster_.sendTransform(world_baselink_transform_stamped);
     }
 }
 
@@ -164,7 +207,11 @@ bool prepareGpsOdometry(nav_msgs::Odometry &gps_odom)
     //这里的world_frame_id_应该是odom，里程计坐标系
     gps_odom.header.frame_id = world_frame_id_;
     gps_odom.header.stamp = gps_update_time_;
-    gps_odom.child_frame_id = "gps";
+    gps_odom.child_frame_id = base_link_frame_id_;
+
+    tf2::Transform transformed_world_robot;
+    getRobotOriginWorldPose(transformed_world_gps, transformed_world_robot, gps_odom.header.stamp);
+
 
     // Rotate the covariance as well
     //将旋转矩阵拓展为6x6矩阵，然后对协方差进行旋转。
@@ -188,7 +235,7 @@ bool prepareGpsOdometry(nav_msgs::Odometry &gps_odom)
 
     // Now fill out the message. Set the orientation to the identity.
     //从transformed_utm_robot提取位姿信息
-    tf2::toMsg(transformed_utm_gps, gps_odom.pose.pose);
+    tf2::toMsg(transformed_world_robot, gps_odom.pose.pose);
     gps_odom.pose.pose.position.z =  0.0;
 
     // Copy the measurement's covariance matrix so that we can rotate it later
@@ -264,7 +311,7 @@ void gpsFixCallback(const sensor_msgs::NavSatFixConstPtr& msg)
         gps_updated_ = true;
 
         publishTF();
-        publishPoseStamped();
+        //publishPoseStamped();
 
         last_utm.utm_x = curr_utm.utm_x;
         last_utm.utm_y = curr_utm.utm_y;

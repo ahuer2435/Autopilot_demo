@@ -2,7 +2,7 @@
 ## 功能:
 将线速度和角速度转化为车辆的刹车,油门和转角指令.
 ## IO 架构图:
-![node_IO](../images/dbw_mkz_twist_controller_IO.png)
+![node_IO](./images/dbw_mkz_twist_controller_IO.png)
 ### 输入:
 * /vehicle/cmd_vel: 期望速度.
 * /vehicle/cmd_vel_with_limits: 带限制的期望速度.
@@ -19,7 +19,7 @@
 * /vehicle/req_accel [std_msgs/Float64]
 
 ## 算法:
-![twist_controller_node_arch](../images/twist_controller_node_arch.bmp)
+![twist_controller_node_arch](./images/twist_controller_node_arch.bmp)
 ### 计算车辆的实时质量:
 ### 设置车子实际速度actual_:
 * 使用转角反馈信息/vehicle/steering_report 设置实际速度actual_中的线速度x分量.
