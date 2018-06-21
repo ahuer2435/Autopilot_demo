@@ -1,0 +1,8 @@
+<launch>
+
+  <node pkg="tf" type="static_transform_publisher" name="bl_gps" args="1 2 0 0 0 0 1 base_link gps 20" />  
+
+  <node pkg="gps_localization" type="gps_localization_node" name="gps_localization_node" output="screen" />
+
+
+</launch>
