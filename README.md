@@ -2,6 +2,9 @@
 ## 功能：
 使用GPS实现循迹功能，目前仍在开发中。
 
+## 知识架构:
+![autopolite_demo_arch](docs/images/autopolite_demo_arch.png)
+
 ## 环境搭建：
  * 安装ubuntu14.04，这个可以自行按照网上教程下载安装。
  * 安装ros indigo 版本：可以参考：http://wiki.ros.org/cn/indigo/Installation/Ubuntu
@@ -34,7 +37,7 @@ rosrun msg_convert pose_heading_vel_node
 rosrun rtk_planning rtk_replay_planner_node
 rosrun msg_convert pose_global_current_node
 roslaunch waypoint_follower pure_pursuit.launch
-roslaunch twist_controller dbw.launch
+roslaunch dbw_mkz_twist_controller dbw.launch
 ```
 ### 循迹架构图：
 ![waypoints_follow_arch](docs/images/waypoints_follow_arch.png)
