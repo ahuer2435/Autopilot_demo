@@ -19,10 +19,11 @@ catkin_make
 ## 启动录制轨迹命令：
 ```
 roslaunch nmea_navsat_driver gps_driver.launch
+rosrun navsat_localization navsat_localization
 rosrun msg_convert pose_heading_vel_node
 rosrun rtk_planning rtk_record_node
 ```
-录制的文件位于/home/yanqiao/workspace/Autopilot_demo/catkin_ws/garage.csv
+录制的文件位于 ~/workspace/Autopilot_demo/catkin_ws/garage.csv
 
 ### 录制路点架构图：
 ![waypoints_record_arch](docs/images/waypoints_record_arch.png)
