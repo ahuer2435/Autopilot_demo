@@ -157,6 +157,10 @@ add_executable(vechie_cmd_to_can_message_node src/vechie_cmd_to_can_message.cpp)
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_dependencies(pose_heading_vel_node ${msg_convert_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(pose_global_current_node ${msg_convert_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(vechie_cmd_to_can_message_node ${msg_convert_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pose_heading_vel_node ${catkin_LIBRARIES} )
 target_link_libraries(pose_global_current_node ${catkin_LIBRARIES} )
